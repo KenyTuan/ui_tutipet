@@ -5,7 +5,6 @@ import pet from '@/app/img/pet.png'
 import dogcat from '@/app/img/dogcat.png'
 import iconsport from '@/app/img/iconsport.png'
 import house from '@/app/img/house.png'
-import flower from '@/app/img/flower.png'
 
 import shadows from '@mui/material/styles/shadows'
 import flower from '@/app/img/flower.png'
@@ -71,6 +70,8 @@ export default function page() {
             </Grid>
           </Stack>
         </Grid>
+        
+
         <Paper elevation={3}>
           <Box sx={{p: 2, borderRadius: 2,  display: 'grid', gridTemplateColumns: { md: '1fr 1fr' }, gap: 2,}} >
             <Stack direction="column">
@@ -123,6 +124,8 @@ export default function page() {
 
         </Paper>
        
+
+
       </Box>
       
   )
