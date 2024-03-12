@@ -10,8 +10,6 @@ import axios from 'axios';
 export default function ListProduct() {
     const [products, setProducts] = React.useState([]);
 
-
-
     const getListProduct = async() =>{
       try{
         const res = await axios.get(`http://localhost:8080/api/v1/products`)

@@ -1,16 +1,16 @@
-import { Box, Divider, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, Divider, Grid, Paper, Stack, TextField, Typography } from '@mui/material'
 import React from 'react'
 import Image from 'next/image'
 import pet from '@/app/img/pet.png'
 import dogcat from '@/app/img/dogcat.png'
 import iconsport from '@/app/img/iconsport.png'
 import house from '@/app/img/house.png'
+import flower from '@/app/img/flower.png'
 
 export default function page() {
   return (
-  
-      <Box sx={{ justifyContent:'center', padding: 3}}>
-        <Grid container>
+      <Box sx={{ padding: 3}}>
+        <Grid container marginBottom={5}>
           <Stack direction="row" spacing={2}>
             <Grid item xs={4}>
               <Typography variant='h6' gutterBottom>
@@ -27,7 +27,7 @@ export default function page() {
             </Grid>
 
             <Grid item xs={4} >
-              <Box p={2} sx={{ border: '2px solid black' }}>
+              <Box p={2} sx={{ border:'2px solid black', boxShadow: 1,borderRadius: 2, '&:hover': {color: 'ButtonHighlight',backgroundColor: 'burlywood'} }}>
                 <Image src={iconsport} height={70} alt={'dang cap'} />
                 <Typography variant='h6' gutterBottom>
                   ĐẲNG CẤP
@@ -40,7 +40,8 @@ export default function page() {
             </Grid>
     
             <Grid item xs={4}>
-              <Box p={2} sx={{ border: '2px solid black', '&:hover':{bgcolor: '#9ca3af'}}}>
+              <Box p={2} sx={{ border: '2px solid black', boxShadow: 1,borderRadius: 2,
+              '&:hover': {color: 'ButtonHighlight',backgroundColor: 'burlywood'}}}>
                 <Image src={pet} height={70} alt={'shop'} />
                   <Typography variant='h6' gutterBottom>
                     SHOP
@@ -53,10 +54,11 @@ export default function page() {
             </Grid>
             
             <Grid item xs={4}>
-              <Box p={2} sx={{ border: '2px solid black' }}>
+              <Box p={2} sx={{ border: '2px solid black', boxShadow: 1,borderRadius: 2,
+              '&:hover': {color: 'ButtonHighlight',backgroundColor: 'burlywood'} }}>
                 <Image src={house} height={70} alt={'shop'} />
-                <Typography variant='h6' gutterBottom>
-                  NGHI DUONG
+                <Typography variant='h6' gutterBottom>  
+                  NGHỈ DƯỠNG
                 </Typography>
                 <Typography variant='h6' gutterBottom>
                 Mọi hành động ở PET SERVICE đều bắt đầu từ sứ mệnh Trao Gửi Yêu Thương. 
@@ -67,6 +69,62 @@ export default function page() {
           </Stack>
         </Grid>
         
+
+        <Paper elevation={3}>
+          <Box sx={{p: 2, borderRadius: 2,  display: 'grid', gridTemplateColumns: { md: '1fr 1fr' }, gap: 2,marginBottom: 5}} >
+            <Stack direction="column">
+              
+              <div className='self-center'>
+              <Image src={flower} height={70} alt={'cho meo'} />
+              </div>
+              <div className ='text-center p-5'>
+                <h2 className=' text-amber-900'>CHÚNG TÔI Ở ĐÂY ĐỂ CHĂM SÓC THÚ CƯNG CỦA BẠN!</h2>
+                <h6 className='p-4'>Vui lòng điền thông tin vào biểu mẫu để đặt lịch chăm sóc cho thú cưng của bạn tại dịch vụ của {"TuTi`s"} Pet.
+                Sau khi nhận được yêu cầu, nhân viên của chúng tôi sẽ liên hệ xác nhận với bạn qua điện thoại. </h6>
+                <p >CẢM ƠN BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG DỊCH VỤ CỦA CHÚNG TÔI.</p>
+              </div>
+                
+              </Stack>
+              <Stack direction="row"> 
+              <form>
+
+                <Grid item xs ={12}>
+                  <Stack direction="row" spacing ={5}  padding={2} >
+                    <Grid item xs ={8}> 
+                      <TextField id="outlined-basic" label="Họ và tên" variant="outlined" fullWidth />
+                    </Grid>
+                    <Grid item xs={8} >
+                      <TextField id="outlined-basic" label="Số điện thoại" variant="outlined" fullWidth  />
+                    </Grid>
+                  </Stack>
+                </Grid>
+
+                <Grid item xs ={8}>
+                  <Stack direction="row" spacing ={5} justifyContent={"flex-end"} padding={2}> 
+                    <input type="date" placeholder='Ngay' className="w-full h-10 px-4 border-2 "  />
+                    <input type="time" placeholder='Gio' className="w-full h-10 px-4 border-2 "/>   
+                  </Stack>
+                </Grid>
+                <Grid item xs ={8}>
+                  <Stack direction="row" spacing ={5} justifyContent={"flex-start"} padding={2}> 
+                    <TextField id="multiline" label="Ghi chú" multiline maxRows={4}/>
+                  </Stack>
+                </Grid>
+                
+                <Grid item xs ={8}>
+                  <Stack direction="row" spacing ={2} justifyContent={"flex-end"}> 
+                    <Button variant="contained" color="success" className="bg-green-600">ĐẶT HẸN NGAY</Button>
+                  </Stack>
+                </Grid>
+              </form>
+              </Stack>
+          </Box>
+
+        </Paper>
+       
+
+
       </Box>
+      
   )
 }

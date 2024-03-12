@@ -5,14 +5,11 @@ import { Box, Button, Checkbox, Divider, Paper, Stack, Typography } from '@mui/m
 import React from 'react'
 
 export default function page() {
-  // const [numberCart, setNumberCart] = React.useState();
-
 
   return (
     <Box paddingRight={15} paddingLeft={15} paddingTop={3} >
       <TitleCard />
-    <Box>
-    </Box>
+
   </Box>
   )
 }
