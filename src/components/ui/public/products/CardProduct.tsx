@@ -2,7 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import cat from '@/app/favicon.ico'
-import { Alert, Box, Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Collapse, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Typography } from '@mui/material'
+import { Alert, Box, Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Collapse, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Stack, Typography } from '@mui/material'
 import { useRouter } from 'next/navigation';
 import axios from 'axios'
 import { Close } from '@mui/icons-material'
@@ -92,7 +92,6 @@ export default function CardProduct({data} : any) {
       setSuccess(false);
     }, 3000);
 
-    // Clear the timeout when the component unmounts or when success changes
     return () => clearTimeout(timeoutId);
   }, [success]);
   
@@ -113,10 +112,12 @@ export default function CardProduct({data} : any) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
-          <Button onClick={handleClickAgree} autoFocus>
-            Agree
-          </Button>
+          <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-evenly"} width={"100%"}>
+            <Button variant='contained' onClick={handleClose} className='bg-gray-400 hover:bg-gray-600' fullWidth sx={{fontSize: 16, fontWeight: "600", margin: 2}}>Đóng</Button>
+            <Button variant='contained' onClick={handleClickAgree} autoFocus className='bg-red-600 hover:bg-red-400' fullWidth sx={{fontSize: 16, fontWeight: "600",margin: 2}}>
+              Đồng ý
+            </Button>
+          </Stack>
         </DialogActions>
       </Dialog>
       <Collapse in={success} style={{ position: 'fixed', zIndex: 11, bottom: 0, left: 10 }}>

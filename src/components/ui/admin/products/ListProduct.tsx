@@ -127,7 +127,7 @@ export default function ListProduct() {
             confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.value) {
-            deleteProduct(id);
+              deleteProduct(id);
             }
         });
     };

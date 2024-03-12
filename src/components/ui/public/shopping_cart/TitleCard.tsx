@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client"
-import { Box, Button, Checkbox, Divider, Grid, Paper, Stack, Typography } from '@mui/material'
+import { Alert, Box, Button, Checkbox, Collapse, Divider, Grid, IconButton, Paper, Stack, Typography } from '@mui/material'
 import React from 'react'
 import ListCart from './ListCart'
 import axios from 'axios';
-import { DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { useRouter } from 'next/navigation';
-import { usePathname } from 'next/navigation';
+import { Close } from '@mui/icons-material';
+
 
 export default function TitleCard() {
     const [checkedAll, setCheckedAll] = React.useState(false);
@@ -14,7 +14,11 @@ export default function TitleCard() {
     const [productCarts, setProductCarts] = React.useState<any[]>([]);
     const route = useRouter()
     const [totalPrice, setTotalPrice] = React.useState(0);
-
+    const [checkedItems, setCheckedItems] = React.useState<any[]>([]);
+    const [success, setSuccess] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
+    const handleClose = () => setOpen(false)
+    const handleOpen = () => setOpen(true);
 
     function getCookieValue(cookieName: string) {
         const name = cookieName + "=";
@@ -52,22 +56,22 @@ export default function TitleCard() {
       }
 
     const deleteProductCart = async(id: number) =>{
-    try{
-        const token = getCookieValue('AuthToken');
-        if (!token){
-            return;
-        }
-        const res = await axios.delete(`http://localhost:8080/api/v1/cart/product_cart/${id}`,{
-            headers:{
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
+        try{
+            const token = getCookieValue('AuthToken');
+            if (!token){
+                return;
             }
-        })
-        console.log("carts: ", res)
-        return res
-    }catch(error){
-        console.error("error",error)
-    }
+            const res = await axios.delete(`http://localhost:8080/api/v1/cart/product_cart/${id}`,{
+                headers:{
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            })
+            console.log("carts: ", res)
+            return res
+        }catch(error){
+            console.error("error",error)
+        }
     }
 
 
@@ -112,21 +116,37 @@ export default function TitleCard() {
     }, []);
     
     const handleCheckedAll = () => {
-        const updatedCheckedAll = !checkedAll;
+        const allItemsChecked = productCarts.every((item) => item.checked);
+    
+        const updatedCheckedAll = !allItemsChecked;
+    
         setCheckedAll(updatedCheckedAll);
-        setProductCarts((prevProductCarts: any) => {
-            return prevProductCarts.map((item: any) => ({
+    
+        setProductCarts((prevProductCarts) => {
+            const updatedProductCarts = prevProductCarts.map((item) => ({
                 ...item,
                 checked: updatedCheckedAll,
             }));
+    
+            const checkedItems = updatedCheckedAll ? updatedProductCarts : [];
+    
+            setCheckedItems(checkedItems);
+    
+            return updatedProductCarts;
         });
-    }
+    };
     
 
     const handleCheckboxChange = (index: number) => {
         const updatedProductCarts = [...productCarts];
         updatedProductCarts[index].checked = !updatedProductCarts[index].checked;
         setProductCarts(updatedProductCarts);
+    
+        const allItemsChecked = updatedProductCarts.every((item) => item.checked);
+        setCheckedAll(allItemsChecked);
+    
+        const checkedItems = updatedProductCarts.filter((item) => item.checked);
+        setCheckedItems(checkedItems);
     };
 
     const handleDeleteAll= async ()=>{
@@ -169,9 +189,7 @@ export default function TitleCard() {
             updateProductCart(latestProductCarts);
         }
       }, [productCarts]);
-    
-    console.log("data ", cart)
-    console.log("a",productCarts)
+
     
 
     const updateProductCart = async(latestProductCarts: any[]) =>{
@@ -213,6 +231,36 @@ export default function TitleCard() {
 
       };
 
+      const handleCheckOut = () => {
+        const checkedItems = productCarts.filter((item) => item.checked);
+        if (checkedItems.length > 0) {
+            const params = new URLSearchParams();
+            const checkedItemsData = {
+            checkedItems: checkedItems,
+            };
+            const jsonString = JSON.stringify(checkedItemsData);
+
+            const encodedData = btoa(unescape(encodeURIComponent(jsonString)));
+            params.append('checkedItems', encodedData);
+            route.push(`/check_out?${params.toString()}`);
+        } else {
+            setSuccess(true)
+            handleOpen()
+        }
+    };
+
+    React.useEffect(() => {
+        const timeoutId = setTimeout(() => {
+          setSuccess(false);
+        }, 3000);
+    
+        return () => clearTimeout(timeoutId);
+      }, [success]);
+    
+    console.log("data ", cart)
+    console.log("a",productCarts)
+    
+
     return (
 
         <Box >
@@ -231,6 +279,26 @@ export default function TitleCard() {
         ):
         (
         <Box>
+            <Collapse  in={success} style={{ position: 'fixed', zIndex: 11, bottom: 0, left: 10 }}>
+                <Alert
+                action={
+                    <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                        setSuccess(false);
+                    }}
+                    >
+                    <Close fontSize="inherit" />
+                    </IconButton>
+                }
+                variant="filled" severity="error"
+                sx={{ mb: 2 }}
+                >
+                    Bạn chưa chọn sản phẩm!
+                </Alert>
+            </Collapse>
             <Stack display={'flex'} justifyContent={"center"} alignContent={"center"} width={"100%"}>
                 <Box marginBottom={2}>
                     <Paper elevation={2} >
@@ -312,7 +380,7 @@ export default function TitleCard() {
                                 <Typography variant='h5' textAlign={"center"} textTransform={'capitalize'} >
                                     {`${totalPrice} VND`}
                                 </Typography>
-                                <Button size="medium" variant='contained'  style={{ backgroundColor: "#FC9C55" }}>
+                                <Button size="medium" variant='contained'  style={{ backgroundColor: "#FC9C55" }} onClick={handleCheckOut}>
                                     <Typography variant='subtitle1' >
                                         Mua Sản Phẩm
                                     </Typography>

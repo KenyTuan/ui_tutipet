@@ -1,8 +1,15 @@
 "use client"
-import { Box, Divider, FormControl, Grid, MenuItem, Paper, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Divider, FormControl, Grid, MenuItem, Paper, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
 import React from 'react'
 
 export default function FormChangePassword() {
+    const [oldPws, setOldPws] = React.useState('');
+    const [newPws,setNewPws] = React.useState('');
+    const [confirmPws,setConfirmPws] = React.useState('');
+
+
+
+
   return (
     <Paper elevation={3}>
         <Box sx={{padding: 3, }}>
@@ -21,6 +28,8 @@ export default function FormChangePassword() {
                             variant="outlined"
                             size="small"
                             fullWidth
+                            value={oldPws}
+                            onChange={(value: any)=> setOldPws(value)}
                             />
                         </Grid>
                     <Grid item xs={4}>
@@ -33,6 +42,8 @@ export default function FormChangePassword() {
                             variant="outlined"
                             size="small"
                             fullWidth
+                            value={newPws}
+                            onChange={(value: any)=> setNewPws(value)}
                             />
                         </Grid>
                     <Grid item xs={4}>
@@ -45,7 +56,37 @@ export default function FormChangePassword() {
                             variant="outlined"
                             size="small"
                             fullWidth
+                            value={confirmPws}
+                            onChange={(value: any)=> setConfirmPws(value)}
                             />
+                    </Grid>
+                    <Grid item xs={12}  >
+                        <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-around"} height={50} paddingLeft={15} paddingRight={15}>
+                            <Button size="medium" variant='outlined' sx={{
+                                    width: "20%",
+                                    borderColor: "#FC9C55",
+                                    '&:hover': {
+                                    backgroundColor: "#FC9C55",
+                                    borderColor: "#FC9C55",
+                                    }
+                                }}
+                                
+                            >
+                                <Typography variant='body2' sx={{fontSize: 14,fontWeight: 700, color: "#FC9C55",
+                                    '&:hover': {
+                                    color: "white"
+                                    }}}
+                                
+                                    >
+                                    Huỷ Bỏ
+                                </Typography>
+                            </Button>
+                            <Button size="medium" variant='contained' style={{width: "20%", backgroundColor: "#FC9C55" }} >
+                                <Typography variant='body2' sx={{fontSize: 14,fontWeight: 700,}}>
+                                    Cập Nhật
+                                </Typography>
+                            </Button>
+                        </Stack>
                     </Grid>
                 </Grid>
             </Box>

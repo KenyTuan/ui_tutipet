@@ -137,10 +137,12 @@ export default function ProductDetail(id: any) {
                 </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                <Button onClick={handleClose}>Close</Button>
-                <Button onClick={handleClickAgree} autoFocus>
-                    Agree
-                </Button>
+                  <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-evenly"} width={"100%"}>
+                    <Button variant='contained' onClick={handleClose} className='bg-gray-400 hover:bg-gray-600' fullWidth sx={{fontSize: 16, fontWeight: "600", margin: 2}}>Đóng</Button>
+                    <Button variant='contained' onClick={handleClickAgree} autoFocus className='bg-red-600 hover:bg-red-400' fullWidth sx={{fontSize: 16, fontWeight: "600",margin: 2}}>
+                      Đồng ý
+                    </Button>
+                  </Stack>
                 </DialogActions>
             </Dialog>
             <Collapse in={success} style={{ position: 'fixed', zIndex: 11, bottom: 0, left: 10 }}>

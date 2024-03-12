@@ -12,7 +12,6 @@ export default function Navbar() {
     const [typeDog, setTypeDog] = React.useState([]);
     const [typeCat, setTypeCat] = React.useState([]);
 
-
     const handleClickDog = () => {
         setOpenDog(!openDog)
         setOpenCat(false);
@@ -55,8 +54,8 @@ export default function Navbar() {
 
 
     return (
-    <Paper elevation={3}  sx={{padding: 2,minWidth: "20%",maxWidth: "50%", borderRadius: 4, backgroundColor: "#eee"}}>
-          <List sx={{ width: '100%', maxWidth: 360, backgroundColor: "#eee" }}
+    <Paper elevation={3}  sx={{padding: 2,minWidth: "20%",maxWidth: "50%", borderRadius: 4, backgroundColor: "#eee",maxHeight: 400}}>
+          <List sx={{ width: '100%', backgroundColor: "#eee" }}
             component="nav"
             aria-labelledby="nested-list-subheader"
             subheader={
@@ -66,6 +65,7 @@ export default function Navbar() {
             }
           >
             <Divider />
+            <Box height={10}/>
             <Box sx={{display: "flex", flexDirection: "row"}}>
                 <ListItemButton onClick={handleClickDog} >
                 <ListItemIcon>

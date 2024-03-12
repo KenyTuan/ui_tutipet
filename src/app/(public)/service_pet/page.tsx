@@ -5,6 +5,7 @@ import pet from '@/app/img/pet.png'
 import dogcat from '@/app/img/dogcat.png'
 import iconsport from '@/app/img/iconsport.png'
 import house from '@/app/img/house.png'
+import flower from '@/app/img/flower.png'
 
 import shadows from '@mui/material/styles/shadows'
 import flower from '@/app/img/flower.png'
@@ -12,7 +13,7 @@ import flower from '@/app/img/flower.png'
 export default function page() {
   return (
       <Box sx={{ padding: 3}}>
-        <Grid container>
+        <Grid container marginBottom={5}>
           <Stack direction="row" spacing={2}>
             <Grid item xs={4}>
               <Typography variant='h6' gutterBottom>
@@ -73,7 +74,7 @@ export default function page() {
         
 
         <Paper elevation={3}>
-          <Box sx={{p: 2, borderRadius: 2,  display: 'grid', gridTemplateColumns: { md: '1fr 1fr' }, gap: 2,}} >
+          <Box sx={{p: 2, borderRadius: 2,  display: 'grid', gridTemplateColumns: { md: '1fr 1fr' }, gap: 2,marginBottom: 5}} >
             <Stack direction="column">
               
               <div className='self-center'>
@@ -81,7 +82,7 @@ export default function page() {
               </div>
               <div className ='text-center p-5'>
                 <h2 className=' text-amber-900'>CHÚNG TÔI Ở ĐÂY ĐỂ CHĂM SÓC THÚ CƯNG CỦA BẠN!</h2>
-                <h6 className='p-4'>Vui lòng điền thông tin vào biểu mẫu để đặt lịch chăm sóc cho thú cưng của bạn tại dịch vụ của TuTi's Pet.
+                <h6 className='p-4'>Vui lòng điền thông tin vào biểu mẫu để đặt lịch chăm sóc cho thú cưng của bạn tại dịch vụ của {"TuTi`s"} Pet.
                 Sau khi nhận được yêu cầu, nhân viên của chúng tôi sẽ liên hệ xác nhận với bạn qua điện thoại. </h6>
                 <p >CẢM ƠN BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG DỊCH VỤ CỦA CHÚNG TÔI.</p>
               </div>
@@ -115,7 +116,7 @@ export default function page() {
                 
                 <Grid item xs ={8}>
                   <Stack direction="row" spacing ={2} justifyContent={"flex-end"}> 
-                    <Button variant="contained" color="success">ĐẶT HẸN NGAY</Button>
+                    <Button variant="contained" color="success" className="bg-green-600">ĐẶT HẸN NGAY</Button>
                   </Stack>
                 </Grid>
               </form>
