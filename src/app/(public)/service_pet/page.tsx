@@ -7,6 +7,9 @@ import iconsport from '@/app/img/iconsport.png'
 import house from '@/app/img/house.png'
 import flower from '@/app/img/flower.png'
 
+import shadows from '@mui/material/styles/shadows'
+import flower from '@/app/img/flower.png'
+
 export default function page() {
   return (
       <Box sx={{ padding: 3}}>
