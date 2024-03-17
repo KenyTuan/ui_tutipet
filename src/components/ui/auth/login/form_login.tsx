@@ -20,7 +20,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
-import { Link, OutlinedInput } from '@mui/material';
+import { Alert, Link, OutlinedInput, Stack } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { NextResponse, NextRequest } from 'next/server'
 
@@ -50,7 +50,6 @@ export default function SignInSide() {
     router.back();
   };
 
-  // Validation for onBlur Email
   const handleEmail = () => {
 
     if (!emailInput) {
@@ -75,20 +74,25 @@ export default function SignInSide() {
 
 
   const handleSubmit = async () => {
-    const data = {
-        email: emailInput,
-        password: passwordInput,
-    }
+    if(emailInput && passwordInput){
+      const data = {
+          email: emailInput,
+          password: passwordInput,
+      }
 
-    const response = await postData("http://localhost:8080/api/v1/auth/authenticate", data);
-    
-    console.log(response);
-    if (response.token) {
-        document.cookie = `AuthToken=${response.token}; path=/; max-age=3600; Secure; SameSite=Strict`;
-        router.push('/')
-        console.log(response.token)
-        return;
+      const response = await postData("http://localhost:8080/api/v1/auth/authenticate", data);
+      
+      console.log(response);
+      if (response.token) {
+          document.cookie = `AuthToken=${response.token}; path=/; max-age=3600; Secure; SameSite=Strict`;
+          router.push('/')
+          console.log(response.token)
+          return;
+      }
+      setFormValid('Đăng nhập thất bại hoặc tài khoản không tồn tại!')
+      return;
     }
+    setFormValid("Vui Lòng Nhập Đủ Thông Tin!")
 };
 
 
@@ -139,6 +143,13 @@ export default function SignInSide() {
                 <Typography component="h1" variant="h3" fontWeight={600} color={"#555"}>
                   Login
                 </Typography>
+                {formValid && (
+                  <Stack sx={{ width: "100%", paddingTop: "10px" }} spacing={2}>
+                    <Alert severity="error">
+                      {formValid}
+                    </Alert>
+                  </Stack>
+                )}
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
                   <TextField
                     label="Email Address"

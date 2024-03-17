@@ -1,15 +1,42 @@
 'use client'
 import { Search } from '@mui/icons-material';
 import { Autocomplete, Box, InputAdornment, TextField } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation'
 
 const SearchBar: React.FC = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [listSearch, setListSearch] = useState<string[]>([]);
+  const pathname = usePathname()
 
-  const handleInputChange = (v: string) => {
-    setSearchTerm(v);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = (e.target as HTMLInputElement).value;
+      setSearchTerm(value);
   };
+
+
+  const handleEnterKeyPress = (e: any) => {
+    if (e.key === 'Enter') {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const hasSearchParam = urlSearchParams.has('search');
+
+        if (hasSearchParam) {
+          urlSearchParams.set('search', searchTerm);
+        } else {
+          urlSearchParams.append('search', searchTerm);
+        }
+
+        const newUrl = `${window.location.pathname}?${urlSearchParams.toString()}`
+
+        router.push(newUrl);
+    }
+};
+
+
+
+
 
   return (
   <Autocomplete
@@ -17,11 +44,12 @@ const SearchBar: React.FC = () => {
     id="searchBar"
     disableClearable
     options={listSearch}
-    onChange={(e, v) => handleInputChange(v)}
+    sx={{backgroundColor: "white"}}
     renderInput={(params) => (
       <TextField
         {...params}
         label="Search"
+        onChange={(e) => handleInputChange(e)}
         InputProps={{
           ...params.InputProps,
           type: 'search',
@@ -30,6 +58,7 @@ const SearchBar: React.FC = () => {
               <Search/>
             </InputAdornment>
           ),
+          onKeyDown: handleEnterKeyPress,
         }}
       />
     )}

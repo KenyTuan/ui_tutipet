@@ -2,6 +2,7 @@
 import { ArrowBackIos, ArrowForwardIos, ExpandLess, ExpandMore, StarBorder } from '@mui/icons-material';
 import { Box, Collapse, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Paper, Typography } from '@mui/material'
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import React from 'react'
 
 
@@ -11,6 +12,7 @@ export default function Navbar() {
     const [openDog, setOpenDog] = React.useState(false);
     const [typeDog, setTypeDog] = React.useState([]);
     const [typeCat, setTypeCat] = React.useState([]);
+    const router = useRouter();
 
     const handleClickDog = () => {
         setOpenDog(!openDog)
@@ -51,6 +53,12 @@ export default function Navbar() {
           };
           fetchData();
     }, [])
+
+    const handleTypeClick = (type: string) => {
+        const params = new URLSearchParams();
+        params.append('type', type)
+        router.push(`/products/list_products?${params.toString()}`);
+    };
 
 
     return (
@@ -94,7 +102,9 @@ export default function Navbar() {
                                         <Typography variant="body1" paragraph sx={{textAlign: "center", fontWeight: 500}}>
                                             {item.name}
                                         </Typography>
-                                    } />
+                                    } 
+                                        onClick={()=>handleTypeClick(item.id)}
+                                    />
                                     </ListItemButton>
                                 </ListItem>
                             )
@@ -130,7 +140,9 @@ export default function Navbar() {
                                                 <Typography variant="body1" paragraph sx={{textAlign: "center", fontWeight: 500}}>
                                                     {item.name}
                                                 </Typography>
-                                            } />
+                                            }
+                                            onClick={()=>handleTypeClick(item.id)}
+                                            />
                                         </ListItemButton>
                                     </ListItem>
                                 )

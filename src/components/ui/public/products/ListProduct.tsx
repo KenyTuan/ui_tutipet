@@ -1,6 +1,5 @@
 "use client";
 import React from 'react'
-import { getAllProduct } from '../../admin/products/ListProduct';
 import CardProduct from './CardProduct';
 import { Box, Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Grid, Typography } from '@mui/material';
 import { Search } from '@mui/icons-material';

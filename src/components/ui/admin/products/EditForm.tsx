@@ -4,16 +4,8 @@ import { Alert, Button, FormControl, Grid, IconButton, InputLabel, List, ListIte
 import Box from '@mui/material/Box'
 import React from 'react'
 import Swal from 'sweetalert2'
+import axios from 'axios'
 
-const getAllProductType = async() => {
-    const res = await fetch('http://localhost:8080/api/v1/types');
-
-    if(!res.ok){
-        throw new Error('Fail to fetch data');
-    }
-
-    return res.json();
-}
 
 
 export default function EditForm({ eventClose, product} : any) {
@@ -24,61 +16,90 @@ export default function EditForm({ eventClose, product} : any) {
     const [formValid, setFormValid] = React.useState('');
     const [id, setId] = React.useState(product.id);
       
-    const fetchData = async () => {
-    try {
-        const result = await getAllProductType();
-        setData(result);
-    } catch (error) {
-        console.error('Error fetching data:', error);
+    const getAllProductType = async() => {
+        try{
+          const res = await axios.get(`http://localhost:8080/api/v1/types`)
+    
+          console.log("type: ", res)
+          
+          return res.data
+        }catch(error){
+          console.error("error",error)
+        }
+      }
+    
+    function getCookieValue(cookieName: string) {
+        const name = cookieName + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookie.split(';');
+        
+        for (let i = 0; i < cookieArray.length; i++) {
+            let cookie = cookieArray[i].trim();
+            if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+            }
+        }
+        return null;
     }
-    };
+    
+    const postProduct = async(dataForm: any) =>{
+        try{
+            const token = getCookieValue('AuthToken');
+            const res = await axios.put(`http://localhost:8080/api/v1/products`,
+            {
+                name: dataForm.get('name'),
+                price: dataForm.get('price'),
+                type_id: dataForm.get('type'),
+                info: "",
+                description: "",
+                img: ""
+            },
+            {
+            headers:{
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            }
+            }
+            )
+
+            console.log("cart: ", res)
+
+            if(res.status != 201){
+                setFormValid(res.request.response)
+                return false;
+            }
+            return true;
+        }catch(error){
+            console.error("error",error)
+            return false;
+        }
+
+    }
+
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
         
-        const data = {
-            id: id,
-            name: dataForm.get('name'),
-            price: dataForm.get('price'),
-            type_id: dataForm.get('type'),
-            info: "",
-            description: "",
-            img: ""
+        const checkPost = await postProduct(dataForm);
+
+        if(checkPost){
+            eventClose();
+            Swal.fire("Thanh Công!", "Đã Xong", "success")
+            return;
         }
-
-        fetch('http://localhost:8080/api/v1/products', {
-            method: 'PUT',
-            headers: {
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => {
-
-            if(response.ok){
-                eventClose();
-                Swal.fire("Thanh Công!", "Đã Xong", "success").then(() => {
-                // Reload the page after the user acknowledges the success message
-                window.location.reload();
-                });
-            }
-            
-
-            return response.json();
-        })
-        .then(data => {
-            console.log('API Response:', data); 
-            setFormValid(data.message)     
-        })
-        .catch(error => {
-            console.error('Error posting data:', error);  
-        });
         
-    
     };
     
     React.useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await getAllProductType();
+                setData(result._embedded.productTypeResList);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
         fetchData();
     }, []);
 
@@ -165,7 +186,7 @@ export default function EditForm({ eventClose, product} : any) {
                         {
                             Array.isArray(data) && data.map((item : any) =>
                                 (
-                                    item.petTypes === pet &&
+                                    item.petType === pet &&
                                     <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
 
                                 )    

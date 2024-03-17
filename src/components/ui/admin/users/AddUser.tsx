@@ -2,25 +2,16 @@
 import { Close, Visibility, VisibilityOff } from '@mui/icons-material'
 import { Alert, Button, FormControl, Grid, IconButton, Input, InputAdornment, InputLabel, List, ListItem, ListItemButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
+import axios from 'axios'
 import React from 'react'
 import Swal from 'sweetalert2'
 
-// const getAllProductType = async() => {
-//     const res = await fetch('http://localhost:8080/api/v1/types');
-
-//     if(!res.ok){
-//         throw new Error('Fail to fetch data');
-//     }
-
-//     return res.json();
-// }
 
 const isEmail = (email: string) =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 
 
 export default function AddFormUser({eventClose}: any) {
-    const [data, setData] = React.useState([]);
     const [gender, setGender] = React.useState("male");
     const [formValid, setFormValid] = React.useState('');
     const [showPassword, setShowPassword] = React.useState(false);
@@ -74,6 +65,20 @@ export default function AddFormUser({eventClose}: any) {
         setPasswordError(false);
     };
 
+    function getCookieValue(cookieName: string) {
+        const name = cookieName + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookie.split(';');
+      
+        for (let i = 0; i < cookieArray.length; i++) {
+          let cookie = cookieArray[i].trim();
+          if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+          }
+        }
+        return null;
+      }
+
     const handleConfirmPass = () => {
         if (
           !confirmPassInput ||
@@ -86,71 +91,52 @@ export default function AddFormUser({eventClose}: any) {
     
         setConfirmPassError(false);
     };
+
+    const postProduct = async() =>{
+        try{
+            const token = getCookieValue('AuthToken');
+            const res = await axios.post(`http://localhost:8080/api/v1/users`,
+            {
+                fullName: usernameInput,
+                gender: gender,
+                email: emailInput,
+                password: passwordInput,
+                confirmPassword: confirmPassInput,
+            },
+            {
+                headers:{
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            }
+            )
+
+            console.log("user Add: ", res)
+
+            if(res.status !== 201){
+                setFormValid(res.request.response)
+                return false;
+            }
+            return true;
+        }catch(error){
+            console.error("error",error)
+            return false;
+        }
+
+    }
     
     
+    const handleSubmit = async () => {
+        const checkPost = await postProduct();
 
-    // const fetchData = async () => {
-    //     try {
-    //       const result = await getAllProductType();
-    //       setData(result);
-    //     } catch (error) {
-    //       console.error('Error fetching data:', error);
-    //     }
-    //   };
-    
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        
-        
-        // event.preventDefault();
-        // const dataForm = new FormData(event.currentTarget);
-        
-        // const data = {
-        //     name: dataForm.get('name'),
-        //     price: dataForm.get('price'),
-        //     type_id: dataForm.get('type'),
-        //     info: "",
-        //     description: "",
-        //     img: ""
-        // }
-
-        // fetch('http://localhost:8080/api/v1/products', {
-        //     method: 'POST',
-        //     headers: {
-        //     'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(data),
-        // })
-        // .then(response => {
-
-        //     if(response.ok){
-        //         eventClose();
-        //         Swal.fire("Thanh Công!", "Đã Xong", "success").then(() => {
-        //         // Reload the page after the user acknowledges the success message
-        //         window.location.reload();
-        //         });
-        //     }
-            
-
-        //     return response.json();
-        // })
-        // .then(data => {
-        //     console.log('API Response:', data); 
-        //     setFormValid(data.message)     
-        // })
-        // .catch(error => {
-        //     console.error('Error posting data:', error);  
-        // });
-        
+        if(checkPost){
+            eventClose();
+            Swal.fire("Thanh Công!", "Đã Xong", "success")
+            return;
+        }
     
     };
     
-
-    
-    // React.useEffect(() => {
-    //     fetchData();
-    // }, []);
-
-
     const handleChange = (event: SelectChangeEvent) => {
         setGender(event.target.value as string);
     };
@@ -161,7 +147,7 @@ export default function AddFormUser({eventClose}: any) {
 
     return (
     <>  
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box component="form" noValidate sx={{ mt: 3 }}>
         <Box>
             <Typography variant='h5' align='center'>
                 Đăng Ký Người Dùng
@@ -177,7 +163,7 @@ export default function AddFormUser({eventClose}: any) {
             <Grid item xs={12}>
                 <TextField
                     error={usernameError}
-                    label="Username"
+                    label="Họ Và Tên"
                     id="standard-basic"
                     variant="standard"
                     sx={{ width: "100%" }}
@@ -293,7 +279,7 @@ export default function AddFormUser({eventClose}: any) {
                 </Stack>
                 )}
                 <Typography variant='h3' align='center'>
-                    <Button variant='contained' type='submit' className='bg-blue-500' fullWidth >
+                    <Button variant='contained' type='button' onClick={handleSubmit} className='bg-blue-500' fullWidth >
                       Submit
                     </Button>
                 </Typography>
