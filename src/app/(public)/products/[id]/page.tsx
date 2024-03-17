@@ -2,9 +2,6 @@ import ProductDetail from '@/components/ui/public/products/prodcuctId/ProductDet
 import { Box } from '@mui/material'
 import React from 'react'
 
-
-
-
 export default function page({ params }: { params: { id: number } }) {
 
   return (

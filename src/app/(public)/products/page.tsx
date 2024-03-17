@@ -1,7 +1,8 @@
 import React from 'react'
 import ListProduct from '@/components/ui/public/products/ListProduct';
-import Navbar from "@/components/ui/public/products/Navbar";
-import { Box } from "@mui/material";
+import {  Box, } from '@mui/material';
+import Navbar from '@/components/ui/public/products/Navbar';
+
 
 export default function page() {
 
