@@ -4,6 +4,8 @@ import { Autocomplete, Box, Button, Divider, Modal, Paper, Stack, TableCell, Tab
 import React from 'react'
 import { Board, Column } from '../dashboard/Board'
 import AddFormUser from './AddUser'
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
 const columns: Column[] = [
     { id: 'id', label: 'ID', minWidth: 60, align: 'center' },
@@ -35,6 +37,54 @@ export default function ListUsers() {
     const handleOpenAdd = () => setOpenAdd(true);
     const handleCloseAdd = () => setOpenAdd(false);
 
+    function getCookieValue(cookieName: string) {
+        const name = cookieName + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookie.split(';');
+      
+        for (let i = 0; i < cookieArray.length; i++) {
+          let cookie = cookieArray[i].trim();
+          if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+          }
+        }
+        return null;
+      }
+
+    const getListUser = React.useCallback(async() =>{
+        try{
+            const token = getCookieValue('AuthToken');
+            const res = await axios.get(`http://localhost:8080/api/v1/users`,
+            {
+                headers:{
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            })
+
+            console.log("uses: ", res)
+            
+            return res.data
+        }catch(error){
+            console.error("error",error)
+        }
+    },[])
+
+    const fetchData = React.useCallback(async () => {
+        try {
+          const result = await getListUser();
+
+          setData(result._embedded.userResList);
+        } catch (error) {
+          Swal.fire("Error!", "Failed to fetch product data.", "error");
+          console.error('Error fetching data:', error);
+        }
+      },[getListUser])
+
+    React.useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -44,6 +94,13 @@ export default function ListUsers() {
         setPage(0);
     };
 
+    const filterData = (v:any) => {
+        if (v) {
+            setData([v]);
+        } else {
+            fetchData();
+        }
+      };
   return (
     <>
         <Modal
@@ -62,7 +119,23 @@ export default function ListUsers() {
             </Typography>
             <Divider/>
             <Box height={10}/>
-            <Stack direction="row" spacing={1}  justifyContent="flex-end" className="mx-4">
+            <Stack direction="row" spacing={1} className="mx-4">
+                <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={data}
+                    sx={{ width: 300 }}
+                    onChange={(e, v) => filterData(v)}
+                    getOptionLabel={(rows) => rows.name || ""}
+                    renderInput={(params) => (
+                        <TextField {...params} size="small" label="Tìm Khách Hàng" />
+                    )}
+                    />
+                <Typography
+                variant="h6"
+                component="div"
+                sx={{ flexGrow: 1 }}
+                ></Typography>
                 <Button variant="contained" endIcon={<AddCircle />} className='bg-blue-500' onClick={handleOpenAdd} >
                     Add
                 </Button>
@@ -78,27 +151,17 @@ export default function ListUsers() {
                 <TableCell key={"id"} align={"center"} className='border-r-2'>
                     {row.id}
                 </TableCell>
-                <TableCell key={"name"} align={"center"} className='border-r-2'>
+                <TableCell key={"fullName"} align={"center"} className='border-r-2'>
                     {row.name}
                 </TableCell>
-                <TableCell key={"type"} align={"center"} className='border-r-2'>
-                    {row.type.name}
+                <TableCell key={"email"} align={"center"} className='border-r-2'>
+                    {row.email}
                 </TableCell>
-                <TableCell key={"pet"} align={"center"} className='border-r-2'>
-                    {row.type.petTypes}
-                </TableCell>
-                <TableCell key={"price"} align={"center"} className='border-r-2'>
-                    {row.price.toLocaleString('en-US', {
-                        style: 'decimal',
-                        minimumFractionDigits: 3,
-                        maximumFractionDigits: 3,
-                        })} VND
-                </TableCell>
-                <TableCell key={"status"} align={"center"} className='border-r-2'>
-                    {row.status}
+                <TableCell key={"gender"} align={"center"} className='border-r-2'>
+                    {row.gender?"Nam":"Nữ"}
                 </TableCell>
                 <TableCell key={"action"} align="left" className='border-r-2'>
-                    <Stack spacing={2} direction="row">
+                    <Stack spacing={2} direction="row" justifyContent={"center"} alignItems={"center"}>
                         <Edit
                             style={{
                             fontSize: "20px",
@@ -134,3 +197,7 @@ export default function ListUsers() {
     </>
   );
 }
+function fetchData() {
+    throw new Error('Function not implemented.')
+}
+

@@ -8,20 +8,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { Autocomplete, Box, Button, Divider, Modal, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, Divider, IconButton, Modal, Stack, TextField, Typography } from '@mui/material';
 import { Board,  Column } from '../dashboard/Board';
-import { AddCircle, Delete, Edit } from '@mui/icons-material';
+import { AddCircle, Delete, Edit, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import Swal from 'sweetalert2';
+import axios from 'axios';
+import ItemOrders from './ItemOrders';
+import { useRouter } from 'next/navigation';
 
 
-  interface Data {
-      id: number;
-      name: string;
-      type: string;
-      petTypes: string;
-      price: number;
-      status: boolean;
-  }
 
   const style = {
       position: 'absolute' as 'absolute',
@@ -35,15 +30,21 @@ import Swal from 'sweetalert2';
       p: 4,
     };
 
-  const getAllProduct = async() => {
-      const res = await fetch('http://localhost:8080/api/v1/products');
-
-      if(!res.ok){
-          throw new Error('Fail to fetch data');
+    function getCookieValue(cookieName: string) {
+        const name = cookieName + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookie.split(';');
+      
+        for (let i = 0; i < cookieArray.length; i++) {
+          let cookie = cookieArray[i].trim();
+          if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+          }
+        }
+        return null;
       }
 
-      return res.json();
-  }
+
 
   async function deleteProduct(id: number) {
     const res = await fetch('http://localhost:8080/api/v1/products/' + id,{
@@ -57,10 +58,7 @@ import Swal from 'sweetalert2';
         Swal.fire("ERROR!", "ERROR!", "error");
     }
 
-    Swal.fire("Deleted!", "Your file has been deleted.", "success").then(() => {
-        // Reload the page after the user acknowledges the success message
-        window.location.reload();
-      });
+    Swal.fire("Deleted!", "Your file has been deleted.", "success")
   
   }
 
@@ -68,16 +66,16 @@ import Swal from 'sweetalert2';
     { id: 'id', label: 'ID', minWidth: 50, align: 'center' },
     { id: 'name', label: 'Tên  Người Nhận', minWidth: 150, align: 'center' },
     { id: 'address', label: 'Địa Chỉ Nhận Hàng', minWidth: 200, align: 'center' },
-    { id: 'phone', label: 'Liên Hệ', minWidth: 150, align: 'center' },
-    { id: 'countProduct', label: 'Số Lượng', minWidth: 50, align: 'center' },
+    { id: 'phone', label: 'Liên Hệ', minWidth: 100, align: 'center' },
+    { id: 'count_product', label: 'Số Lượng', minWidth: 50, align: 'center' },
+    { id: 'total', label: 'Thành Tiền', minWidth: 50, align: 'center' },
     { id: 'status', label: 'Trạng Thái', minWidth: 50, align: 'center' },
-    { id: 'action', label: 'Sửa/Xóa', minWidth: 50, align: 'center' },
+    { id: 'action', label: 'Sửa/Xóa', minWidth: 150, align: 'center' },
     ];
 
 
 export default function ListOrders() {
-
-    const [data, setData] = React.useState<Data[]>([]);
+    const [data, setData] = React.useState<any[]>([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [openAdd, setOpenAdd] = React.useState(false);
@@ -87,19 +85,41 @@ export default function ListOrders() {
     const handleOpenEdit = () => setOpenEdit(true);
     const handleCloseEdit = () => setOpenEdit(false);
     const [product, setProduct] = React.useState(null);
+    const route = useRouter();
 
-    // const fetchData = async () => {
-    //     try {
-    //       const result = await getAllProduct();
-    //       setData(result);
-    //     } catch (error) {
-    //       console.error('Error fetching data:', error);
-    //     }
-    //   };
+    const getListOrder = React.useCallback(async() =>{
+        try{
+            const token = getCookieValue('AuthToken');
+            const res = await axios.get(`http://localhost:8080/api/v1/orders`,
+            {
+                headers:{
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            })
 
-    //   React.useEffect(() => {
-    //     fetchData();
-    //   }, []);
+            console.log("order: ", res)
+            
+            return res.data
+        }catch(error){
+            console.error("error",error)
+        }
+    },[])
+
+    const fetchData = React.useCallback(async () => {
+        try {
+          const result = await getListOrder();
+
+          setData(result._embedded.orderResList);
+        } catch (error) {
+          Swal.fire("Error!", "Failed to fetch product data.", "error");
+          console.error('Error fetching data:', error);
+        }
+      },[getListOrder])
+
+      React.useEffect(() => {
+        fetchData();
+      }, [fetchData]);
       
     const deleteProductByID = (id: number) => {
         Swal.fire({
@@ -126,17 +146,26 @@ export default function ListOrders() {
         setPage(0);
     };
 
-    const handleEditProduct = (data: any) => {
-      setProduct(data);
-      handleOpenEdit();
+    const handleShowOrder = (data: any) => {
+      const params = new URLSearchParams();
+      const jsonString = JSON.stringify(data);
+      const encodedData = btoa(unescape(encodeURIComponent(jsonString)));
+      params.append('order', encodedData);
+      route.push(`/dashboard/orders/detail_order?${params.toString()}`);
     };
+
+    const handleEditProduct = (data: any) => {
+      const params = new URLSearchParams();
+      const jsonString = JSON.stringify(data);
+      const encodedData = btoa(unescape(encodeURIComponent(jsonString)));
+      params.append('order', encodedData);
+      route.push(`/dashboard/orders/edit_order?${params.toString()}`);
+  };
 
 
   return (
     <>
-
-
-    <Modal
+    {/* <Modal
         open={openEdit}
         onClose={handleCloseEdit}
         aria-labelledby="modal-modal-title"
@@ -144,8 +173,7 @@ export default function ListOrders() {
       >
       <Box sx={style}>
       </Box>
-    </Modal>
-
+    </Modal> */}
     <Paper sx={{ width: '100%' }}>
         <Typography gutterBottom variant='h4' component={'div'} sx={{padding: "20px"}} className='font-bold'>
             Danh Sách Đơn Hàng
@@ -157,53 +185,7 @@ export default function ListOrders() {
             data
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row: any) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                <TableCell key={"id"} align={"center"} className='border-r-2'>
-                    {row.id}
-                </TableCell>
-                <TableCell key={"name"} align={"center"} className='border-r-2'>
-                    {row.name}
-                </TableCell>
-                <TableCell key={"type"} align={"center"} className='border-r-2'>
-                    {row.type.name}
-                </TableCell>
-                <TableCell key={"pet"} align={"center"} className='border-r-2'>
-                    {row.type.petTypes}
-                </TableCell>
-                <TableCell key={"price"} align={"center"} className='border-r-2'>
-                    {row.price.toLocaleString('en-US', {
-                        style: 'decimal',
-                        minimumFractionDigits: 3,
-                        maximumFractionDigits: 3,
-                        })} VND
-                </TableCell>
-                <TableCell key={"status"} align={"center"} className='border-r-2'>
-                    {row.status}
-                </TableCell>
-                <TableCell key={"action"} align="left" className='border-r-2'>
-                    <Stack spacing={2} direction="row">
-                        <Edit
-                            style={{
-                            fontSize: "20px",
-                            color: "blue",
-                            cursor: "pointer",
-                            }}
-                            className="cursor-pointer"
-                            onClick={()=>handleEditProduct(row)}
-                        />
-                        <Delete
-                            style={{
-                            fontSize: "20px",
-                            color: "darkred",
-                            cursor: "pointer",
-                            }}
-                            onClick={() => {
-                             deleteProductByID(row.id);
-                            }}
-                        />
-                    </Stack>
-                </TableCell>
-                </TableRow>
+                <ItemOrders key={row.id} row={row} deleteProductByID={deleteProductByID} handleEditProduct={handleEditProduct} handleShowOrder={handleShowOrder}/>
             )
             )
         }

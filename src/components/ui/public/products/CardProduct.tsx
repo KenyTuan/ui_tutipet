@@ -147,12 +147,13 @@ export default function CardProduct({data} : any) {
           alt="hình cún con"
         />
         <CardContent>
-          <Typography gutterBottom variant="h6" component="div"  style={{
-            display: '-webkit-box',
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            WebkitLineClamp: 2, 
-          }}>
+          <Typography gutterBottom variant="body1" component="div"  
+            style={{
+              display: '-webkit-box',
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              WebkitLineClamp: 2, 
+            }}>
             {data.name}
           </Typography>
           <Box sx={{display: "flex", flexDirection: "row", justifyContent: 'flex-end'}}>

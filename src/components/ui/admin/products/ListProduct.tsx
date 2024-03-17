@@ -10,10 +10,11 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { Autocomplete, Box, Button, Divider, Modal, Stack, TextField, Typography } from '@mui/material';
 import { Board,  Column } from '../dashboard/Board';
-import { AddCircle, Delete, Edit } from '@mui/icons-material';
+import { AddCircle, Delete, Edit, Visibility } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import AddForm from './AddForm';
 import EditForm from './EditForm';
+import axios from 'axios';
 
 
   interface Data {
@@ -24,7 +25,6 @@ import EditForm from './EditForm';
       price: number;
       status: boolean;
   }
-
 
   const style = {
       position: 'absolute' as 'absolute',
@@ -38,41 +38,39 @@ import EditForm from './EditForm';
       p: 4,
     };
 
-  export const getAllProduct = async() => {
-        const res = await fetch('http://localhost:8080/api/v1/products');
-
-      if(!res.ok){
-          throw new Error('Fail to fetch data');
+  function getCookieValue(cookieName: string) {
+    const name = cookieName + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+  
+    for (let i = 0; i < cookieArray.length; i++) {
+      let cookie = cookieArray[i].trim();
+      if (cookie.indexOf(name) === 0) {
+        return cookie.substring(name.length, cookie.length);
       }
-
-      return res.json();
-  }
-
-  export const getAllProductType = async() => {
-    const res = await fetch('http://localhost:8080/api/v1/types');
-
-    if(!res.ok){
-        throw new Error('Fail to fetch data');
     }
-
-    return res.json();
+    return null;
   }
+
+
+
 
   async function deleteProduct(id: number) {
-    const res = await fetch('http://localhost:8080/api/v1/products/' + id,{
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
+    const token = getCookieValue('AuthToken');
+    const res = await axios.delete(`http://localhost:8080/api/v1/products/`+ id,
+        {
+          headers:{
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+          }
         }
-    });
+    )
 
-    if(!res.ok){
+    if(res.status != 204){
         Swal.fire("ERROR!", "ERROR!", "error");
     }
 
-    Swal.fire("Deleted!", "Your file has been deleted.", "success").then(() => {
-        window.location.reload();
-      });
+    Swal.fire("Deleted!", "Your file has been deleted.", "success")
   
   }
 
@@ -99,22 +97,32 @@ export default function ListProduct() {
     const handleCloseEdit = () => setOpenEdit(false);
     const [product, setProduct] = React.useState(null);
 
-    const fetchData = async () => {
+    const getListProduct = async() =>{
+      try{
+        const res = await axios.get(`http://localhost:8080/api/v1/products`)
+  
+        console.log("products: ", res)
+        
+        return res.data
+      }catch(error){
+        console.error("error",error)
+      }
+    }
+
+    const fetchData = React.useCallback(async () => {
         try {
-          const result = await getAllProduct();
-          setData(result);
+          const result = await getListProduct();
+
+          setData(result._embedded.productResList);
         } catch (error) {
+          Swal.fire("Error!", "Failed to fetch product data.", "error");
           console.error('Error fetching data:', error);
         }
-      };
+      },[])
 
     React.useEffect(() => {
-      fetchData();
-    }, []);
-
-
-
-
+        fetchData();
+    }, [fetchData]);
       
     const deleteProductByID = (id: number) => {
         Swal.fire({
@@ -228,8 +236,8 @@ export default function ListProduct() {
                 <TableCell key={"price"} align={"center"} className='border-r-2'>
                     {row.price.toLocaleString('en-US', {
                         style: 'decimal',
-                        minimumFractionDigits: 3,
-                        maximumFractionDigits: 3,
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
                         })} VND
                 </TableCell>
                 <TableCell key={"status"} align={"center"} className='border-r-2'>
@@ -237,6 +245,15 @@ export default function ListProduct() {
                 </TableCell>
                 <TableCell key={"action"} align="left" className='border-r-2'>
                     <Stack spacing={2} direction="row">
+                        <Visibility
+                            style={{
+                            fontSize: "20px",
+                            color: "gray",
+                            cursor: "pointer",
+                            }}
+                            className="cursor-pointer"
+                            // onClick={()=>handleShowOrder(row)}
+                        />
                         <Edit
                             style={{
                             fontSize: "20px",
@@ -264,13 +281,13 @@ export default function ListProduct() {
         }
         </Board>
         <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={data.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={data.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
     </Paper>
     </>
