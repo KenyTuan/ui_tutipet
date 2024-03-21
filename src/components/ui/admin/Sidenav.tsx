@@ -23,6 +23,7 @@ import { CalendarMonth, Category, Dashboard, Person2Outlined, Redeem, Settings, 
 import { useRouter } from 'next/navigation';
 import Navbar from './Navbar';
 import { useAppStore } from './appStore';
+import axios from 'axios';
 
 const drawerWidth = 240;
 
@@ -144,8 +145,6 @@ export default function Sidenav({
     children: React.ReactNode;
   }>) {
   const theme = useTheme();
-  // const [open, setOpen] = React.useState(true);
-
   const router = useRouter();
   const updateOpen = useAppStore((state) => state.updateOpen);
   const open = useAppStore((state) => state.dopen);

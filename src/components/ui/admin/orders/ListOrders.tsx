@@ -112,7 +112,6 @@ export default function ListOrders() {
 
           setData(result._embedded.orderResList);
         } catch (error) {
-          Swal.fire("Error!", "Failed to fetch product data.", "error");
           console.error('Error fetching data:', error);
         }
       },[getListOrder])

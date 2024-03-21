@@ -378,7 +378,11 @@ export default function TitleCard() {
                                     Tổng Thanh Tiền
                                 </Typography>
                                 <Typography variant='h5' textAlign={"center"} textTransform={'capitalize'} >
-                                    {`${totalPrice} VND`}
+                                    {`${totalPrice == 0? totalPrice : totalPrice.toLocaleString('en-US', {
+                                        style: 'decimal',
+                                        minimumFractionDigits: 3,
+                                        maximumFractionDigits: 3,
+                                        })} VND`}
                                 </Typography>
                                 <Button size="medium" variant='contained'  style={{ backgroundColor: "#FC9C55" }} onClick={handleCheckOut}>
                                     <Typography variant='subtitle1' >

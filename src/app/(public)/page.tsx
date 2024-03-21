@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 
 export default function Home() {
   return (
     <>
       <div>
-        <Image src='/info.svg'
+        <Image src='/tutipet.gif'
           alt={"Hình con mèo"}
           height={250}
           width={500}
@@ -14,7 +15,7 @@ export default function Home() {
             <h1 className='text-center'>CHÀO MỪNG BẠN ĐẾN VỚI CHÚNG TÔI</h1>
         </div>
         <div className={"flex flex-row m-2 p-10"}>
-            <Image src='/logo.svg'
+            <Image src='/ne.jpg'
               alt={"Hình Giới Thiệu"} 
               className=" ml-4 w-1/3" 
               height={250}
@@ -42,17 +43,84 @@ export default function Home() {
                 </p>
             </div>
             <Image 
-              src='/logo.svg' 
+              src='/he.jpg' 
               alt={"Hình Giới Thiệu"} 
-              className="m-4 w-1/3" 
-              height={250}
+              className="m-4 w-1/4" 
+              height={200}
               width={500}
               />
         </div>
+
+        <div className={"flex m-2 p-10"}>
+        <Image 
+              src='/tay.png' 
+              alt={"Hình Giới Thiệu"} 
+              className="ư-1/4" 
+              height={200}
+              width={500}
+              />
+            <div className=" px-28">
+                <h2 className="text-center p-2 uppercase "> <br/>Bạn có thể tin tưởng 100% vào chúng tôi</h2>
+                <Box sx={{ width: '100%' }}>
+                  <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                    <Grid item xs={6}>
+                     <Stack direction={"row"} padding={2}>
+                      <Image src='/pet.png' width={40} height={40} alt={'meow'} />
+                      <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                        CHÚNG TÔI YÊU CHÓ MÈO 
+                        </Typography>
+                     </Stack>
+                    <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                    Tất cả thành viên tại TuTi Pet đều đã và đang chăm sóc thú cưng của riêng mình. 
+                    Cũng như các bạn, chúng tôi coi thú cưng là một thành viên trong gia đình và xứng đáng được chăm sóc tốt nhất.​ 
+                    </Typography>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                      <Stack direction={"row"} padding={2}>
+                        <Image src='/pet.png' width={40} height={40} alt={'meow'} />
+                        <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                          SỰ TẬN TÂM 
+                          </Typography>
+                      </Stack>
+                      <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                        Chúng tôi luôn thấu hiểu khi rời xa bạn lông xù của mình, 
+                        chúng tôi đảm bảo rằng thú cưng của bạn sẽ nhận được những sự chăm sóc tốt nhất.​ 
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                    <Stack direction={"row"} padding={2}>
+                        <Image src='/pet.png' width={40} height={40} alt={'meow'} />
+                        <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                          SỰ CHUYÊN NGHIỆP
+                          </Typography>
+                      </Stack>
+                      <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                        Chúng tôi luôn đầu tư vào những đồ dùng hiện đại cùng với đội ngũ chăm sóc có chuyên môn tối thiểu 3 năm kinh nghiệm.
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                      <Stack direction={"row"} padding={2}>
+                          <Image src='/pet.png'width={40} height={40} alt={'meow'} />
+                          <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                            SỰ MINH BẠCH
+                            </Typography>
+                        </Stack>
+                        <Typography variant='h6' gutterBottom paddingLeft={3}>  
+                          Chúng tôi muốn bạn tin tưởng tuyệt đối vào sự chăm sóc tận tâm, dịch vụ chất lượng và giá cả hợp lý mà chúng tôi mang lại.
+                        </Typography>
+                    </Grid>
+                  </Grid>
+                  
+                </Box>
+                
+            </div>
+            
+        </div>
         <div className="w-full px-8 mb-4">
-            <div className="bg-beige-300  flex p-3 rounded-b-lg shadow-lg shadow-slate-300 border 
-        items-center justify-between">
-            <h1 className="ml-2 uppercase">Sản Phẩm</h1>
+          <div className="">
             <Link 
               href={"#"} 
               className="mr-8"

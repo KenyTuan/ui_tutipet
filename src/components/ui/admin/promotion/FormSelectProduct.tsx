@@ -5,13 +5,11 @@ import Typography from '@mui/material/Typography';
 import React from 'react'
 import TransferList from './TranferList';
 
-export default function FormSelectProduct({eventClose}: any) {
-    const [formValid, setFormValid] = React.useState('');
-    const [data, setData] = React.useState([]);
+export default function FormSelectProduct(eventClose: any, setData: any) {
 
   return (
     <>
-        <Box component="div" sx={{ mt: 1 }} height={screen.height - (screen.height * 20 / 100)}>
+        <Box component="div" sx={{ mt: 1 }} height={screen.height - (screen.height * 25 / 100)}>
             <Box >
                 <Typography variant='h5' align='center' fontWeight={"600"}>
                     Chọn Sản Phẩm Cho Chương Trình Ưu Đãi
@@ -25,7 +23,7 @@ export default function FormSelectProduct({eventClose}: any) {
                 </IconButton>           
             </Box>
             <Box height={8}/>
-            <TransferList />
+            <TransferList setData={setData}/>
         </Box>
     </>
   )

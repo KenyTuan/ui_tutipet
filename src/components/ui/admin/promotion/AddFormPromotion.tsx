@@ -16,6 +16,8 @@ import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs'
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { List, ListItem, ListItemText, ListSubheader, MenuItem, Modal, Select } from '@mui/material'
 import FormSelectProduct from './FormSelectProduct'
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -36,47 +38,71 @@ export default function AddFormPromotion({eventClose}: any) {
     const handleOpenSelection = () => setOpenSelection(true);
     const handleCloseSelection = () => setOpenSelection(false);
 
+    function getCookieValue(cookieName: string) {
+        const name = cookieName + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookie.split(';');
+      
+        for (let i = 0; i < cookieArray.length; i++) {
+          let cookie = cookieArray[i].trim();
+          if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+          }
+        }
+        return null;
+      }
+
+
+    const postPromotion = async(dataForm: any) =>{
+        try{
+            const token = getCookieValue('AuthToken');
+            if(!token){
+                return;
+            }
+            const res = await axios.post(`http://localhost:8080/api/v1/promotion`,
+            {
+                fromTime: dataForm.get('name'),
+                toTime: dataForm.get('price'),
+                discountType: dataForm.get('type'),
+                value: dataForm.get('detail'),
+                productIds: {},
+            },
+            {
+            headers:{
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            }
+            }
+            )
+
+            console.log("product: ", res)
+
+            if(res.status !== 201){
+                setFormValid(res.request.response)
+                return false;
+            }
+            return true;
+        }catch(error){
+            console.error("error",error)
+            return false;
+        }
+
+    }
+
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        // event.preventDefault();
-        // const dataForm = new FormData(event.currentTarget);
         
-        // const data = {
-        //     name: dataForm.get('name'),
-        //     price: dataForm.get('price'),
-        //     type_id: dataForm.get('type'),
-        //     info: "",
-        //     description: "",
-        //     img: ""
-        // }
-
-        // fetch('http://localhost:8080/api/v1/products', {
-        //     method: 'POST',
-        //     headers: {
-        //     'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(data),
-        // })
-        // .then(response => {
-
-        //     if(response.ok){
-        //         eventClose();
-        //         Swal.fire("Thanh Công!", "Đã Xong", "success").then(() => {
-        //         // Reload the page after the user acknowledges the success message
-        //         window.location.reload();
-        //         });
-        //     }
-            
-
-        //     return response.json();
-        // })
-        // .then(data => {
-        //     console.log('API Response:', data); 
-        //     setFormValid(data.message)     
-        // })
-        // .catch(error => {
-        //     console.error('Error posting data:', error);  
-        // });
+        event.preventDefault();
+        const dataForm = new FormData(event.currentTarget);
         
+        const checkPost = await postPromotion(dataForm);
+
+        if(checkPost){
+            eventClose();
+            Swal.fire("Thanh Công!", "Đã Xong", "success")
+            .then(()=>(window.location.reload()))
+            return;
+        }
     
     };
 
@@ -89,7 +115,7 @@ export default function AddFormPromotion({eventClose}: any) {
         aria-describedby="modal-modal-description"
       >
       <Box sx={style}>
-        <FormSelectProduct eventClose={handleCloseSelection}/>
+        <FormSelectProduct eventClose={handleCloseSelection} setData={setData}/>
       </Box>
     </Modal>
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
@@ -109,18 +135,18 @@ export default function AddFormPromotion({eventClose}: any) {
                 <Grid item xs={12}>
                     <Stack direction={'row'} spacing={2} justifyContent={"space-between"}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker label="Từ Ngày"/>    
+                            <DateTimePicker label="Từ Ngày" name='formTime'/>    
                         </LocalizationProvider>
                         <Typography variant='h4' component={'div'}>
                             -
                         </Typography>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker label="Đến Ngày"/>    
+                            <DateTimePicker label="Đến Ngày" name='toTime'/>    
                         </LocalizationProvider>
                     </Stack>
                     
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Ưu Đãi Dành Cho</InputLabel>
                         <Select
@@ -131,7 +157,7 @@ export default function AddFormPromotion({eventClose}: any) {
                             <MenuItem value={"PRODUCT"}>Sản Phẩm</MenuItem>
                         </Select>
                     </FormControl>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Giảm Theo</InputLabel>
@@ -139,6 +165,7 @@ export default function AddFormPromotion({eventClose}: any) {
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
                             label="discountType"
+                            name='discountType'
                         >
                             <MenuItem value={"PERCENTAGE"}>% Giá Sản Phẩm</MenuItem>
                             <MenuItem value={"SPECIFIC"}>Giá Sản Phẩm</MenuItem>

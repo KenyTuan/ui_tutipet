@@ -35,7 +35,11 @@ const ItemOrders: React.FC<ListCartProps> = ({ row, handleEditProduct, deletePro
           {row.productOrderRes.reduce((total: number, item: any) => total + item.quantity, 0)}
         </TableCell>
         <TableCell key={"total"} align={"center"} className='border-r-2'>
-            {(row.productOrderRes.reduce((total: number, item: any) => total + (item.quantity * item.product.price), 0) *1000).toLocaleString('vi-VN', {style: 'currency', currency: 'VND'})}
+            {(row.productOrderRes.reduce((total: number, item: any) => total + (item.quantity * item.product.price), 0) *1000).toLocaleString('en-US', {
+              style: 'decimal',
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              })} VND
         </TableCell>
         <TableCell key={"status"} align={"center"} className='border-r-2'>
             {row.status}

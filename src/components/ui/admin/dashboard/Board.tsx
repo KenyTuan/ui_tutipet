@@ -14,17 +14,14 @@ export interface Column {
     align?: 'center';
     format?: (value: number) => string;
   }
-
   interface BoardProps  {
     columns: Column[];
     children: React.ReactNode
   }
-  
 export const Board: React.FC<BoardProps> = ({ columns, children }) =>  {
-    
   return (
     <>
-        <TableContainer sx={{ maxHeight: 490 }} className='border-y-2' >
+        <TableContainer sx={{ maxHeight: 1550 }} className='border-y-2' >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

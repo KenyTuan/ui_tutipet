@@ -54,9 +54,9 @@ interface ListCartProps {
                             <CardMedia
                                 component="img"
                                 height={7}
-                                style={{ height: '7rem',width: '7rem' }}
-                                image="https://img.pikbest.com/wp/202345/cat-dog-pet-and-pets-in-real-pictures-wallpapers_9596134.jpg!w700wp"
-                                alt="green iguana"
+                                style={{ height: '7rem',width: '7rem',objectFit: "cover" }}
+                                image={item.productRes.img}
+                                alt={item.productRes.name}
                             />
                             <CardContent sx={{width: "100%"}}>
                                 <Typography gutterBottom variant="body1" component="div" style={{
@@ -75,7 +75,11 @@ interface ListCartProps {
                 <Divider orientation="vertical" flexItem />
                 <Box width={"15%"} justifyContent={"center"} display={"flex"}>
                     <Typography variant='subtitle2' >
-                        {item?.productRes?.price}
+                        {item?.productRes?.price.toLocaleString('en-US', {
+                        style: 'decimal',
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                        })} VND
                     </Typography>
                 </Box>
                 <Divider orientation="vertical" flexItem />
@@ -96,7 +100,11 @@ interface ListCartProps {
                 <Divider orientation="vertical" flexItem />
                 <Box width={"15%"} justifyContent={"center"} display={"flex"}>
                     <Typography>
-                        {item?.productRes?.price * quantity}
+                        {(item?.productRes?.price * quantity).toLocaleString('en-US', {
+                        style: 'decimal',
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                        })} VND
                     </Typography>
                 </Box>
                 <Divider orientation="vertical" flexItem />

@@ -18,18 +18,16 @@ export default function RootLayout({
         marginBottom={5}
       >
         <Header/>
-          <Box component={"div"} sx={{
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: 600
-          }}
-
-          >
-            {children}
-          </Box>
+        <Box component={"div"} sx={{
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 600
+        }}
+        >
+          {children}
+        </Box>
         <Footer/>
       </Box>
-
     </>
   );
 }

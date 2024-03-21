@@ -8,24 +8,51 @@ import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import axios from 'axios';
 
-function not(a: readonly number[], b: readonly number[]) {
+function not(a: readonly any[], b: readonly any[]) {
   return a.filter((value) => b.indexOf(value) === -1);
 }
 
-function intersection(a: readonly number[], b: readonly number[]) {
+function intersection(a: readonly any[], b: readonly any[]) {
   return a.filter((value) => b.indexOf(value) !== -1);
 }
 
-export default function TransferList() {
-  const [checked, setChecked] = React.useState<readonly number[]>([]);
-  const [left, setLeft] = React.useState<readonly number[]>([0, 1, 2, 3,4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7]);
-  const [right, setRight] = React.useState<readonly number[]>([4, 5, 6, 7]);
+export default function TransferList(setData: any) {
+  const [checked, setChecked] = React.useState<readonly any[]>([]);
+  const [left, setLeft] = React.useState<readonly any[]>([]);
+  const [right, setRight] = React.useState<readonly any[]>([]);
 
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
 
-  const handleToggle = (value: number) => () => {
+  const getListProduct = async() =>{
+    try{
+      const res = await axios.get(`http://localhost:8080/api/v1/products/active`)
+
+      console.log("products: ", res)
+      
+      return res.data
+    }catch(error){
+      console.error("error",error)
+    }
+  }
+
+  const fetchData = React.useCallback(async () => {
+    try {
+      const result = await getListProduct();
+      setLeft(result._embedded.productResList);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  },[])
+  
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+
+  const handleToggle = (value: any) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
 
@@ -60,11 +87,11 @@ export default function TransferList() {
     setRight([]);
   };
 
-  const customList = (items: readonly number[]) => (
-    <Paper sx={{ width: "100%", height: screen.height - (screen.height * 30 / 100), overflow: 'auto' }}>
+  const customList = (items: readonly any[]) => (
+    <Paper sx={{ width: "100%", height: screen.height - (screen.height * 35 / 100), overflow: 'auto' }}>
       <List dense component="div" role="list">
-        {items.map((value: number) => {
-          const labelId = `transfer-list-item-${value}-label`;
+        {items.map((value: any) => {
+          const labelId = `transfer-list-item-${value.id}-label`;
 
           return (
             <ListItemButton
@@ -82,7 +109,7 @@ export default function TransferList() {
                   }}
                 />
               </ListItemIcon>
-              <ListItemText id={labelId} primary={`List item ${value + 1}`} />
+              <ListItemText id={labelId} primary={`${value.name}`} />
             </ListItemButton>
           );
         })}
@@ -138,7 +165,7 @@ export default function TransferList() {
         </Grid>
       </Grid>
       <Grid item xs={5}>{customList(right)}</Grid>
-      <Grid item xs={12}>
+      <Grid item xs={10}>
         <Typography variant='h3' align='center' marginLeft={"20%"} marginRight={"20%"}>
             <Button variant='contained' type='submit' className='bg-blue-500' fullWidth >
                 Đã Chọn
