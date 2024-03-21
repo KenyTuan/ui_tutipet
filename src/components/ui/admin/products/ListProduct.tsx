@@ -8,7 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { Autocomplete, Box, Button, Divider, Modal, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, CardActionArea, CardMedia, Divider, Modal, Stack, TextField, Typography } from '@mui/material';
 import { Board,  Column } from '../dashboard/Board';
 import { AddCircle, Delete, Edit, Visibility } from '@mui/icons-material';
 import Swal from 'sweetalert2';
@@ -69,13 +69,13 @@ import axios from 'axios';
     if(res.status != 204){
         Swal.fire("ERROR!", "ERROR!", "error");
     }
-
     Swal.fire("Deleted!", "Your file has been deleted.", "success")
-  
+    .then(()=>(window.location.reload()))
   }
 
   const columns: Column[] = [
     { id: 'id', label: 'ID', minWidth: 60, align: 'center' },
+    { id: 'img', label: 'Hình ảnh', minWidth: 80, align: 'center' },
     { id: 'name', label: 'Tên Sản Phẩm', minWidth: 250, align: 'center' },
     { id: 'type', label: 'Loại Sản Phẩm', minWidth: 170, align: 'center' },
     { id: 'pet', label: 'Dành Cho Pet', minWidth: 150, align: 'center' },
@@ -99,7 +99,7 @@ export default function ListProduct() {
 
     const getListProduct = async() =>{
       try{
-        const res = await axios.get(`http://localhost:8080/api/v1/products`)
+        const res = await axios.get(`http://localhost:8080/api/v1/products/active`)
   
         console.log("products: ", res)
         
@@ -110,18 +110,16 @@ export default function ListProduct() {
     }
 
     const fetchData = React.useCallback(async () => {
-        try {
-          const result = await getListProduct();
-
-          setData(result._embedded.productResList);
-        } catch (error) {
-          Swal.fire("Error!", "Failed to fetch product data.", "error");
-          console.error('Error fetching data:', error);
-        }
-      },[])
-
+      try {
+        const result = await getListProduct();
+        setData(result._embedded.productResList);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },[])
+    
     React.useEffect(() => {
-        fetchData();
+      fetchData();
     }, [fetchData]);
       
     const deleteProductByID = (id: number) => {
@@ -139,6 +137,28 @@ export default function ListProduct() {
             }
         });
     };
+
+    const updateEnableByID = async (id: number,active: boolean) =>  {
+      const token = getCookieValue('AuthToken');
+      if(!token){
+        return;
+      }
+      const enable = !active ? "ENABLED" : "DISABLED"
+      const res = await axios.patch(`http://localhost:8080/api/v1/products?id=${id}&enable=${enable}`,
+          {
+            headers:{
+                'Authorization': `Bearer ${token}`,
+            }
+          }
+      )
+
+      if(res.status != 201){
+          Swal.fire("ERROR!", "ERROR!", "error");
+      }
+
+      Swal.fire("Đã Cập Nhật!", `Bạn Đã ${!active?"Ẩn Sản Phẩm Này": "Hiện Sản Phẩm Này" }.`, "success")
+      .then(()=>(window.location.reload()))
+    }
     
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -161,6 +181,9 @@ export default function ListProduct() {
           fetchData();
       }
     };
+
+
+
 
   return (
     <>
@@ -197,7 +220,7 @@ export default function ListProduct() {
               disablePortal
               id="combo-box-demo"
               options={data}
-              sx={{ width: 300 }}
+              sx={{ width: "40%" }}
               onChange={(e, v) => filterData(v)}
               getOptionLabel={(rows) => rows.name || ""}
               renderInput={(params) => (
@@ -225,6 +248,17 @@ export default function ListProduct() {
                     {row.id}
                 </TableCell>
                 <TableCell key={"name"} align={"center"} className='border-r-2'>
+                    <CardActionArea>
+                      <CardMedia
+                        src={row.img}
+                        component="img"
+                        height={12}
+                        style={{ height: '8rem', padding: 10 }}
+                        alt="hình cún con"
+                      />
+                    </CardActionArea>
+                </TableCell>
+                <TableCell key={"name"} align={"center"} className='border-r-2'>
                     {row.name}
                 </TableCell>
                 <TableCell key={"type"} align={"center"} className='border-r-2'>
@@ -241,19 +275,17 @@ export default function ListProduct() {
                         })} VND
                 </TableCell>
                 <TableCell key={"status"} align={"center"} className='border-r-2'>
-                    {row.status}
+                  {row.status == "ENABLED"?
+                  (
+                    <Button variant="contained" className='bg-green-500 hover:bg-green-600 text-sm' onClick={()=>updateEnableByID(row.id,true)}>{row.status}</Button>
+
+                  ):(
+                    <Button variant="outlined"  onClick={()=>updateEnableByID(row.id,false)}>{row.status}</Button>
+                  )
+                }
                 </TableCell>
                 <TableCell key={"action"} align="left" className='border-r-2'>
                     <Stack spacing={2} direction="row">
-                        <Visibility
-                            style={{
-                            fontSize: "20px",
-                            color: "gray",
-                            cursor: "pointer",
-                            }}
-                            className="cursor-pointer"
-                            // onClick={()=>handleShowOrder(row)}
-                        />
                         <Edit
                             style={{
                             fontSize: "20px",

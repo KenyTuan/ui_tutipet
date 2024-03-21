@@ -141,27 +141,38 @@ export default function CardProduct({data} : any) {
       </Collapse>
       <CardActionArea onClick={()=> handleCardClick(data.id)}>
         <CardMedia
+          src={data.img}
           component="img"
-          height={8}
-          style={{ height: '8rem' }}
+          height={12}
+          style={{ height: '16rem', padding: 10 }}
           alt="hình cún con"
         />
         <CardContent>
-          <Typography gutterBottom variant="body1" component="div"  
+          <Typography gutterBottom variant="subtitle2" component="div"  
             style={{
               display: '-webkit-box',
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
-              WebkitLineClamp: 2, 
+              WebkitLineClamp: 2,
+              maxHeight: '3em', 
+              lineHeight: '1.5em',
             }}>
             {data.name}
           </Typography>
           <Box sx={{display: "flex", flexDirection: "row", justifyContent: 'flex-end'}}>
             <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}}  >
-                150.000 VND
+                {150.000.toLocaleString('en-US', {
+                        style: 'decimal',
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                        })} VND
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{textDecoration: 'line-through',opacity: 0.6, }}>
-                {data.price}
+                {data.price.toLocaleString('en-US', {
+                        style: 'decimal',
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                        })} VND
             </Typography>
           </Box>
         </CardContent>

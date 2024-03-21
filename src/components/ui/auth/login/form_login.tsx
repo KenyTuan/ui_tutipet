@@ -4,30 +4,22 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Image from 'next/image'
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Input from '@mui/material/Input';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import { Alert, Link, OutlinedInput, Stack } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { NextResponse, NextRequest } from 'next/server'
 
 
 const defaultTheme = createTheme();
-
-
 
 export default function SignInSide() {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -38,7 +30,6 @@ export default function SignInSide() {
   const [passwordError, setPasswordError] = React.useState(false);
 
   const [formValid, setFormValid] = React.useState('');
-  const [success, setSuccess] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event: { preventDefault: () => void; }) => {
@@ -83,8 +74,9 @@ export default function SignInSide() {
       const response = await postData("http://localhost:8080/api/v1/auth/authenticate", data);
       
       console.log(response);
+
       if (response.token) {
-          document.cookie = `AuthToken=${response.token}; path=/; max-age=3600; Secure; SameSite=Strict`;
+          document.cookie = `AuthToken=${response.token}; path=/; max-age=${response.expTime}; Secure; SameSite=Strict`;
           router.push('/')
           console.log(response.token)
           return;

@@ -173,9 +173,10 @@ export default function ProductDetail(id: any) {
                                     component="img"
                                     height={20}
                                     width={8}
-                                    style={{ height: '20rem' }}
-                                    image="https://img.pikbest.com/wp/202345/cat-dog-pet-and-pets-in-real-pictures-wallpapers_9596134.jpg!w700wp"
+                                    style={{ height: '20rem', objectFit:"contain" }}
+                                    src={product?.img}
                                     alt="hình Cún Con"
+                                    
                                     />
                             </CardActionArea>
                         </Card>
@@ -190,7 +191,11 @@ export default function ProductDetail(id: any) {
                                 150.000 VND
                                 </Typography>
                                 <Typography variant='h5' gutterBottom sx={{textDecoration: 'line-through',opacity: 0.6, }}>
-                                    {product?.price} VND
+                                    {product?.price.toLocaleString('en-US', {
+                                      style: 'decimal',
+                                        minimumFractionDigits: 3,
+                                        maximumFractionDigits: 3,
+                                      })} VND
                                 </Typography>
                             </Stack>
                             

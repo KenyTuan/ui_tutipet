@@ -86,6 +86,7 @@ export default function EditForm({ eventClose, product} : any) {
         if(checkPost){
             eventClose();
             Swal.fire("Thanh Công!", "Đã Xong", "success")
+            .then(()=>(window.location.reload()))
             return;
         }
         

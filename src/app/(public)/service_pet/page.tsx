@@ -5,8 +5,6 @@ import pet from '@/app/img/pet.png'
 import dogcat from '@/app/img/dogcat.png'
 import iconsport from '@/app/img/iconsport.png'
 import house from '@/app/img/house.png'
-import flower from '@/app/img/flower.png'
-
 import shadows from '@mui/material/styles/shadows'
 import flower from '@/app/img/flower.png'
 

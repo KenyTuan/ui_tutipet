@@ -10,7 +10,7 @@ export default function ItemProductOrder(item: any) {
             sx={{ width: 100, height: 100 }}
             variant='rounded' 
             alt="Remy Sharp" 
-            src="https://img.pikbest.com/wp/202345/cat-dog-pet-and-pets-in-real-pictures-wallpapers_9596134.jpg!w700wp"
+            src={item.item.productRes.img}
             />
         </ListItemAvatar>
         <ListItemText >
