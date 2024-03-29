@@ -14,105 +14,102 @@ export default function Infor() {
     const [isDataLoaded, setIsDataLoaded] = React.useState(false);
 
     const handleChange = (event: SelectChangeEvent) => {
-        setGender(event.target.value);
-      };
+      setGender(event.target.value);
+    };
 
-    function getCookieValue(cookieName: string) {
-        const name = cookieName + "=";
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const cookieArray = decodedCookie.split(';');
-      
-        for (let i = 0; i < cookieArray.length; i++) {
-          let cookie = cookieArray[i].trim();
-          if (cookie.indexOf(name) === 0) {
-            return cookie.substring(name.length, cookie.length);
-          }
+  function getCookieValue(cookieName: string) {
+      const name = cookieName + "=";
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const cookieArray = decodedCookie.split(';');
+    
+      for (let i = 0; i < cookieArray.length; i++) {
+        let cookie = cookieArray[i].trim();
+        if (cookie.indexOf(name) === 0) {
+          return cookie.substring(name.length, cookie.length);
         }
-        return null;
+      }
+      return null;
     }
 
     const getInfoUser = React.useCallback(async () => {
         try {
           const token = getCookieValue('AuthToken');
+          if (!token){
+            return Swal.fire("Bạn đăng nhập chưa?", "Vui Lòng Đăng Nhập!" , "question")
+              .then(()=>window.location.href = "/login");
+          }
           const res = await axios.get(`http://localhost:8080/api/v1/users/info`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
           });
-    
-          console.log("users: ", res.data);
           setUser(res.data);
-    
           setGender(res.data.gender?'1':'0');
           setName(res.data.name);
-    
           return res.data;
         } catch (error) {
           console.error("error", error);
         }
       }, []);
 
-      React.useEffect(() => {
-        getInfoUser();
-      }, [getInfoUser]);
+    React.useEffect(() => {
+      getInfoUser();
+    }, [getInfoUser]);
 
-    const handleResetInput = () => {
-        setGender(user.gender?'1':'0');
-        setName(user.name);
+  const handleResetInput = () => {
+    setGender(user.gender?'1':'0');
+    setName(user.name);
+  }
+
+  const checkingInp = () => {
+    const checkedGender = gender == "1";
+    console.log("check",checkedGender)
+    console.log("check user",user?.gender)
+    if (user?.name === name.trim() && user?.gender == checkedGender) {
+      return true;
     }
-
-    const checkingInp = () => {
-        const checkedGender = gender === "1";
+    return false;
+  };
     
-        if (user?.name === name.trim() && user?.gender === checkedGender) {
-          return true;
-        }
-    
-        return false;
-    };
-    
-    const putUser = async() =>{
-        try{
-          const token = getCookieValue('AuthToken');
-          if (!token){
-            return false;
-          }
-          const res = await axios.put(`http://localhost:8080/api/v1/users`,{
-                fullName: name,
-                gender: gender== '1'? true : false
-            },
-            {
-                headers:{
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                }
-            }
-          )
-    
-          console.log("cart: ", res)
-    
-          if(res.status != 201){
-            setMessage("Vui lòng nhập lại!")
-            return false;
-          }
-
-          return true;
-        }catch(error){
-          console.error("error",error)
-          setMessage("Vui lòng nhập lại!")
-        }  
+  const putUser = async() =>{
+    try{
+      const token = getCookieValue('AuthToken');
+      if (!token){
+        return Swal.fire("Bạn đăng nhập chưa?", "Vui Lòng Đăng Nhập!" , "question");
       }
-    
-    const handleClickUpdateInfo = async () => {
-        const checkPost = await putUser();
-        if(checkPost){
-            Swal.fire("Thành Công!", "Đã Cập Nhập", "success").then(() => {
-            });
-        return;
+      const res = await axios.put(`http://localhost:8080/api/v1/users`,{
+            fullName: name,
+            gender: gender == '1'? true : false
+        },
+        {
+            headers:{
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            }
         }
-        Swal.fire("Thất Bại!", "" + message , "error");
+      )
+      if(res.status != 201){
+        setMessage("Vui lòng nhập lại!")
+        return false;
+      }
+
+      setUser(res.data)
+      return true;
+    }catch(error){
+      console.error("error",error)
+      setMessage("Vui lòng nhập lại!")
+    }  
+  }
+    
+  const handleClickUpdateInfo = async () => {
+    const checkPost = await putUser();
+    if(checkPost){
+      Swal.fire("Thành Công!", "Đã Cập Nhập", "success")
+      return;
     }
+    Swal.fire("Thất Bại!", "" + message , "error");
+  }
     
   return (
     <Paper elevation={3}>

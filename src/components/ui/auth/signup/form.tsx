@@ -1,5 +1,4 @@
 "use client"
-
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -74,48 +73,11 @@ export default function SignUp() {
             console.error('Error setting up the request:', error.message);
           }
         });
-      // try{
-      //   const res = await axios.post(`http://localhost:8080/api/v1/auth/register`,)
-        
-      //   console.log("register: ", res)
-      //   if(res.status === 201){
-      //     document.cookie = `AuthToken=${res.data.token}; path=/; max-age=3600; Secure; SameSite=Strict`;
-      //     router.push('/');
-      //   }
-      //   setFormValid(res.data.message)
-      // }catch(error){
-      //   console.error("error",error)
-      // }
     }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
-
-        // fetch('http://localhost:8080/api/v1/auth/register', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(data),
-        // })
-        // .then(response => {
-        //   console.log(response);
-          // if (response.ok) {
-          //   // throw new Error(`HTTP error! Status: ${response.status}`);
-          //   
-          //   return;
-          // }
-
-        //   return response.json();
-        // })
-        // .then(data => {
-        //   console.log('API Response:', data);
-        //   
-        // })
-        // .catch(error => {
-        //   console.error('Error posting data:', error);  
-        // });
 
         console.log("sucess",postRegister(dataForm));
 
@@ -124,30 +86,24 @@ export default function SignUp() {
 
     const [showPassword, setShowPassword] = useState(false);
 
-    //Inputs
     const [usernameInput, setUsernameInput] = useState('');
     const [emailInput, setEmailInput] = useState('');
     const [passwordInput, setPasswordInput] = useState('');
     const [confirmPwdInput, setConfirmPwdInput] = useState('');
 
-
-    // Inputs Errors
     const [usernameError, setUsernameError] = useState(false);
     const [emailError, setEmailError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [confirmPwdError, setConfirmPwdError] = useState(false);
 
-    // Overall Form Validity
     const [formValid, setFormValid] = useState('');
     const [success, setSuccess] = useState(false);
 
-      // Handles Display and Hide Password
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (event: { preventDefault: () => void; }) => {
         event.preventDefault();
     };
 
-  // Validation for onBlur Username
   const handleUsername = () => {
     if (!usernameInput) {
       setUsernameError(true);
@@ -157,7 +113,6 @@ export default function SignUp() {
     setUsernameError(false);
   };
 
-  // Validation for onBlur Email
   const handleEmail = () => {
     console.log(isEmail(emailInput));
     if (!isEmail(emailInput)) {
@@ -168,7 +123,6 @@ export default function SignUp() {
     setEmailError(false);
   };
 
-  // Validation for onBlur Password
   const handlePassword = () => {
     if (
       !passwordInput ||

@@ -8,13 +8,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { Autocomplete, Box, Button, Divider, IconButton, Modal, Stack, TextField, Typography } from '@mui/material';
+import { AppBar, Autocomplete, Box, Button, Divider, IconButton, Modal, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { Board,  Column } from '../dashboard/Board';
 import { AddCircle, Delete, Edit, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import ItemOrders from './ItemOrders';
 import { useRouter } from 'next/navigation';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 
 
 
@@ -47,19 +48,19 @@ import { useRouter } from 'next/navigation';
 
 
   async function deleteProduct(id: number) {
-    const res = await fetch('http://localhost:8080/api/v1/products/' + id,{
+    const token = getCookieValue('AuthToken');
+    const res = await fetch('http://localhost:8080/api/v1/orders/' + id,{
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
         }
     });
 
     if(!res.ok){
         Swal.fire("ERROR!", "ERROR!", "error");
     }
-
     Swal.fire("Deleted!", "Your file has been deleted.", "success")
-  
   }
 
   const columns: Column[] = [
@@ -78,15 +79,12 @@ export default function ListOrders() {
     const [data, setData] = React.useState<any[]>([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [openAdd, setOpenAdd] = React.useState(false);
-    const handleOpenAdd = () => setOpenAdd(true);
-    const handleCloseAdd = () => setOpenAdd(false);
-    const [openEdit, setOpenEdit] = React.useState(false);
-    const handleOpenEdit = () => setOpenEdit(true);
-    const handleCloseEdit = () => setOpenEdit(false);
-    const [product, setProduct] = React.useState(null);
     const route = useRouter();
+    const [value, setValue] = React.useState("1"); 
 
+    const handleChange = (event: any, newValue: any) => {
+      setValue(newValue);
+    };
     const getListOrder = React.useCallback(async() =>{
         try{
             const token = getCookieValue('AuthToken');
@@ -164,40 +162,92 @@ export default function ListOrders() {
 
   return (
     <>
-    {/* <Modal
-        open={openEdit}
-        onClose={handleCloseEdit}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-      <Box sx={style}>
-      </Box>
-    </Modal> */}
     <Paper sx={{ width: '100%' }}>
-        <Typography gutterBottom variant='h4' component={'div'} sx={{padding: "20px"}} className='font-bold'>
-            Danh Sách Đơn Hàng
-        </Typography>
-        <Divider/>
-        <Board columns={columns} >
-        {
-            Array.isArray(data) &&
-            data
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: any) => (
-                <ItemOrders key={row.id} row={row} deleteProductByID={deleteProductByID} handleEditProduct={handleEditProduct} handleShowOrder={handleShowOrder}/>
-            )
-            )
-        }
-        </Board>
-        <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={data.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+      <Typography gutterBottom variant='h4' component={'div'} sx={{padding: "20px"}} className='font-bold'>
+          Danh Sách Đơn Hàng
+      </Typography>
+      <Divider/>
+      <TabContext value={value}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <TabList onChange={handleChange} aria-label="lab API tabs example">
+            <Tab label="Tất cả" value="1" />
+            <Tab label="Chưa Duyệt" value="2" />
+            <Tab label="Đang Giao" value="3" />
+          </TabList>
+        </Box>
+        <TabPanel value="1">
+          <Box>
+            <Board columns={columns} >
+              {
+                Array.isArray(data) &&
+                data
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row: any) => (
+                    <ItemOrders key={row.id} row={row} deleteProductByID={deleteProductByID} handleEditProduct={handleEditProduct} handleShowOrder={handleShowOrder}/>
+                )
+                )
+              }
+            </Board>
+            <TablePagination
+                rowsPerPageOptions={[10, 25, 100]}
+                component="div"
+                count={data.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Box>
+        </TabPanel>
+        <TabPanel value="2">
+            <Box>
+              <Board columns={columns} >
+                {
+                  Array.isArray(data) &&
+                  data
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row: any) => (
+                      <ItemOrders key={row.id} row={row} deleteProductByID={deleteProductByID} handleEditProduct={handleEditProduct} handleShowOrder={handleShowOrder}/>
+                  )
+                  )
+                }
+              </Board>
+              <TablePagination
+                  rowsPerPageOptions={[10, 25, 100]}
+                  component="div"
+                  count={data.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Box>
+          </TabPanel>
+        <TabPanel value="3">
+          <Box>
+            <Board columns={columns} >
+              {
+                Array.isArray(data) &&
+                data
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row: any) => (
+                    <ItemOrders key={row.id} row={row} deleteProductByID={deleteProductByID} handleEditProduct={handleEditProduct} handleShowOrder={handleShowOrder}/>
+                )
+                )
+              }
+            </Board>
+            <TablePagination
+                rowsPerPageOptions={[10, 25, 100]}
+                component="div"
+                count={data.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Box>
+        </TabPanel>
+      </TabContext>
     </Paper>
     </>
     

@@ -9,22 +9,19 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import axios from 'axios';
-
-function not(a: readonly any[], b: readonly any[]) {
-  return a.filter((value) => b.indexOf(value) === -1);
+import { Avatar, FormControl, InputLabel, ListItemAvatar, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+interface FormSelectProductProps {
+  eventClose: () => void;
+  setDatas: (data: any) => void;
 }
 
-function intersection(a: readonly any[], b: readonly any[]) {
-  return a.filter((value) => b.indexOf(value) !== -1);
-}
-
-export default function TransferList(setData: any) {
+export default function TransferList({ eventClose, setDatas }: FormSelectProductProps) {
   const [checked, setChecked] = React.useState<readonly any[]>([]);
   const [left, setLeft] = React.useState<readonly any[]>([]);
-  const [right, setRight] = React.useState<readonly any[]>([]);
-
-  const leftChecked = intersection(checked, left);
-  const rightChecked = intersection(checked, right);
+  const [data, setData] = React.useState([]);
+  const [pet, setPet] = React.useState('');
+  const [type, setType] = React.useState('');
+  const [filteredLeft, setFilteredLeft] = React.useState<readonly any[]>([]);
 
   const getListProduct = async() =>{
     try{
@@ -42,6 +39,7 @@ export default function TransferList(setData: any) {
     try {
       const result = await getListProduct();
       setLeft(result._embedded.productResList);
+      setFilteredLeft(result._embedded.productResList);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -65,34 +63,61 @@ export default function TransferList(setData: any) {
     setChecked(newChecked);
   };
 
-  const handleAllRight = () => {
-    setRight(right.concat(left));
-    setLeft([]);
+  const getAllProductType = async() => {
+    try{
+      const res = await axios.get(`http://localhost:8080/api/v1/types`)
+
+      console.log("type: ", res)
+      
+      return res.data
+    }catch(error){
+      console.error("error",error)
+    }
+  }
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+        try {
+          const result = await getAllProductType();
+          
+          setData(result._embedded.productTypeResList);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+    fetchData();
+  }, []);
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setPet(event.target.value);
   };
 
-  const handleCheckedRight = () => {
-    setRight(right.concat(leftChecked));
-    setLeft(not(left, leftChecked));
-    setChecked(not(checked, leftChecked));
+  const handleAppyChecked = () => {
+    setDatas(checked)
+    eventClose()
   };
 
-  const handleCheckedLeft = () => {
-    setLeft(left.concat(rightChecked));
-    setRight(not(right, rightChecked));
-    setChecked(not(checked, rightChecked));
-  };
-
-  const handleAllLeft = () => {
-    setLeft(left.concat(right));
-    setRight([]);
+  const handleChangeType = (event: SelectChangeEvent) => {
+    const selectedType = event.target.value;
+    setType(selectedType);
+    if(selectedType != "0"){
+      if (!selectedType) {
+        setFilteredLeft(left);
+        return;
+      }
+  
+      const filteredProducts = left.filter((product) => product.type.id == selectedType);
+      setFilteredLeft(filteredProducts);
+      return
+    }
+    setFilteredLeft(left);
   };
 
   const customList = (items: readonly any[]) => (
-    <Paper sx={{ width: "100%", height: screen.height - (screen.height * 35 / 100), overflow: 'auto' }}>
+    <Paper sx={{ width: "100%", height: screen.height - (screen.height * 50 / 100), overflow: 'auto' }}>
       <List dense component="div" role="list">
         {items.map((value: any) => {
           const labelId = `transfer-list-item-${value.id}-label`;
-
           return (
             <ListItemButton
               key={value}
@@ -109,6 +134,9 @@ export default function TransferList(setData: any) {
                   }}
                 />
               </ListItemIcon>
+              <ListItemAvatar>
+                <Avatar alt={value.name} src={value.img} />
+              </ListItemAvatar>
               <ListItemText id={labelId} primary={`${value.name}`} />
             </ListItemButton>
           );
@@ -119,56 +147,68 @@ export default function TransferList(setData: any) {
 
   return (
     <Grid container spacing={2} direction={"row"} justifyContent="center" alignItems="center"   >
-      <Grid item xs={5}>{customList(left)}</Grid>
-      <Grid item>
-        <Grid container direction="column" alignItems="center">
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleAllRight}
-            disabled={left.length === 0}
-            aria-label="move all right"
-          >
-            ≫
-          </Button>
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedRight}
-            disabled={leftChecked.length === 0}
-            aria-label="move selected right"
-          >
-            &gt;
-          </Button>
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedLeft}
-            disabled={rightChecked.length === 0}
-            aria-label="move selected left"
-          >
-            &lt;
-          </Button>
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleAllLeft}
-            disabled={right.length === 0}
-            aria-label="move all left"
-          >
-            ≪
-          </Button>
-        </Grid>
+      <Grid item xs={4}>
+        <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Pet</InputLabel>
+            <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={pet}
+                label="Pet"
+                onChange={handleChange}
+            >
+                <MenuItem value={"CAT"}>Mèo</MenuItem>
+                <MenuItem value={"DOG"}>Chó</MenuItem>
+            </Select>
+        </FormControl>
       </Grid>
-      <Grid item xs={5}>{customList(right)}</Grid>
+      <Grid item xs={8}>
+        <FormControl fullWidth >
+            <InputLabel id="demo-simple-select-label">Loại </InputLabel>
+            <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={type}
+                label="type"
+                name='type'
+                onChange={handleChangeType}
+                MenuProps={{ 
+                    anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "left"
+                    },
+                    transformOrigin: {
+                        vertical: "top",
+                        horizontal: "left"
+                    },
+                    classes: {
+                        paper: "scroll-menu", 
+                    },
+                    PaperProps: {
+                        style: {
+                            maxHeight: 300, 
+                        },
+                    },
+                }}
+            >   
+                <MenuItem value={0}>Tất Cả</MenuItem>
+                {
+                    Array.isArray(data) && data.map((item : any) =>
+                        (
+                          item.petType == pet &&
+                            <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                        )    
+                    )
+                }
+                
+            </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12}>{customList(filteredLeft)}</Grid>
       <Grid item xs={10}>
         <Typography variant='h3' align='center' marginLeft={"20%"} marginRight={"20%"}>
-            <Button variant='contained' type='submit' className='bg-blue-500' fullWidth >
-                Đã Chọn
+            <Button variant='contained' type='submit' className='bg-blue-500' fullWidth onClick={handleAppyChecked}>
+                Đồng Ý
             </Button>
         </Typography>
       </Grid>

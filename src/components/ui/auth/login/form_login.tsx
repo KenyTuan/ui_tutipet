@@ -67,8 +67,8 @@ export default function SignInSide() {
   const handleSubmit = async () => {
     if(emailInput && passwordInput){
       const data = {
-          email: emailInput,
-          password: passwordInput,
+          email: emailInput.trim(),
+          password: passwordInput.trim(),
       }
 
       const response = await postData("http://localhost:8080/api/v1/auth/authenticate", data);

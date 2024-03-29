@@ -5,13 +5,11 @@ import { TabContext, TabList, TabPanel } from '@mui/lab'
 
 export default function ListOrder() {
     const [value, setValue] = React.useState('1');
-    
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
       setValue(newValue);
     };
 
-      
   return (
     <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
@@ -21,7 +19,6 @@ export default function ListOrder() {
             <Tab sx={{width: 800}} label="Đã hủy" value="3" />
           </TabList>
         </Box>
-        
         <TabPanel value="1">
           <Box>
             <ListItem alignItems="center" style={{marginBottom: 2, borderWidth: 0.5,}}>

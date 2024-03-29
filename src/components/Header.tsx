@@ -44,7 +44,7 @@ export default function Header() {
   const handleNavigateToSignUp = () => {
     if (isLoggedIn) {
       document.cookie = 'AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      window.location.reload();
+      window.location.href = "/"
     } else{
       window.location.href = "/login"
     }

@@ -2,7 +2,6 @@ import { Avatar, Box, ListItem, ListItemAvatar, ListItemText, Stack, Typography 
 import React from 'react'
 
 export default function ItemProductOrder(item: any) {
-    console.log("item order", item)
   return (
     <ListItem alignItems="center" style={{marginBottom: 2, borderWidth: 0.5,}}>
         <ListItemAvatar>
@@ -25,16 +24,58 @@ export default function ItemProductOrder(item: any) {
                 {decodeURIComponent(escape(item.item.productRes.name))}
             </Typography>
             <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-between"}>
-                <Typography fontSize={13}>Đơn giá</Typography>
-                <Typography fontSize={13}>{item.item.productRes.price} VND</Typography>
+                <Typography variant="body1">Đơn giá</Typography>
+                  {
+                    !!item.item.productRes.promotion?
+                    (
+                        <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}} marginRight={1} >
+                          {(item.item.productRes?.promotion.discountType === "PERCENTAGE"?
+                          (item.item.productRes?.price - item.item.productRes?.price * item.item?.productRes?.promotion.value):
+                          (item.item.productRes?.price - item.item.productRes?.promotion.value) )
+                          .toLocaleString('en-US', {
+                          style: 'decimal',
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                          })}
+                        </Typography>
+                    ):(
+                    <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}}  >
+                      {item.item?.productRes?.price.toLocaleString('en-US', {
+                          style: 'decimal',
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                          })}
+                    </Typography>
+                    )}
             </Stack>
             <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-between"}>
-                <Typography fontSize={13}>Số lượng</Typography>
-                <Typography fontSize={13}>{item.item.quantity}</Typography>
+                <Typography variant="body1">Số lượng</Typography>
+                <Typography variant="body1">{item.item.quantity}</Typography>
             </Stack>
             <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-between"}>
-                <Typography fontSize={13}>Thành Tiền</Typography>
-                <Typography fontSize={13}>{item.item.quantity * item.item.productRes.price}</Typography>
+                <Typography variant="body1">Thành Tiền</Typography>
+                {
+                    !!item.item?.productRes?.promotion?
+                    (
+                        <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}} marginRight={1} >
+                            {(item.item?.productRes?.promotion.discountType === "PERCENTAGE"?
+                            (item.item?.productRes?.price - item.item?.productRes?.price * item.item?.productRes?.promotion.value) *  item.item.quantity:
+                            (item.item?.productRes?.price - item.item?.productRes?.promotion.value) * item.item.quantity).toLocaleString('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                            })}
+                        </Typography>
+
+                    ):(
+                    <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}}  >
+                        {(item.item?.productRes?.price * item.item.quantity).toLocaleString('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                            })}
+                    </Typography>
+                    )}
             </Stack>
             </Box>
         </ListItemText>

@@ -1,6 +1,6 @@
 "use client"
 import { Close } from '@mui/icons-material'
-import { Alert, Button, FormControl, Grid, IconButton, InputLabel, List, ListItem, ListItemButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Button, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import React from 'react'
 import Swal from 'sweetalert2'
@@ -9,12 +9,16 @@ import axios from 'axios'
 
 
 export default function EditForm({ eventClose, product} : any) {
-
     const [data, setData] = React.useState([]);
     const [pet, setPet] = React.useState(product.type.petTypes || '');
     const [type, setType] = React.useState(product.type.id || '');
+    const [name, setName] = React.useState(product.name || '');
+    const [price, setPrice] = React.useState(product.price || '');
+    const [description, setDescription] = React.useState(product.description || '');
+    const [info, setInfo] = React.useState(product.info || '');
+    const [selectedFile, setSelectedFile] = React.useState<any>(null);
+    const [isFilePicked, setIsFilePicked] = React.useState(false);
     const [formValid, setFormValid] = React.useState('');
-    const [id, setId] = React.useState(product.id);
       
     const getAllProductType = async() => {
         try{
@@ -42,17 +46,18 @@ export default function EditForm({ eventClose, product} : any) {
         return null;
     }
     
-    const postProduct = async(dataForm: any) =>{
+    const postProduct = async(dataForm: any,image:string) =>{
         try{
             const token = getCookieValue('AuthToken');
             const res = await axios.put(`http://localhost:8080/api/v1/products`,
             {
+                id: product.id,
                 name: dataForm.get('name'),
                 price: dataForm.get('price'),
                 type_id: dataForm.get('type'),
-                info: "",
-                description: "",
-                img: ""
+                info: dataForm.get('detail'),
+                description: dataForm.get('description'),
+                img: image
             },
             {
             headers:{
@@ -73,15 +78,67 @@ export default function EditForm({ eventClose, product} : any) {
             console.error("error",error)
             return false;
         }
-
     }
 
+    const changeHandler = (event: any) => {
+        const file = event.target.files[0];
+        const fileSizeLimit = 32 * 1024 * 1024; 
+    
+        if (file.size > fileSizeLimit) {
+            console.error('Kích thước file vượt quá giới hạn (32MB)');
+            return;
+        }
+    
+        const reader = new FileReader();
+    
+        reader.onloadend = () => {
+            const base64String = reader.result;
+            setSelectedFile(base64String);
+            console.log('Base64 encoded image:', base64String);
+        };
+        reader.readAsDataURL(file);
+        setIsFilePicked(true);
+    };
+
+    
+    const postImage = async() =>{
+        try{
+            const res = await axios.post(`https://api.imgbb.com/1/upload?key=58240beb2987602ef6ecc2cdb3488c29`,
+            {
+                image: selectedFile.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "")
+            },
+            {
+            headers:{
+                'Content-Type': 'multipart/form-data'
+            }
+            }
+            )
+
+            console.log("image: ", res)
+
+            if(res.status !== 200){
+                return false;
+            }
+            return res.data.data.url;
+        }catch(error){
+            console.error("error",error)
+            return false;
+        }
+
+    }
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
-        
-        const checkPost = await postProduct(dataForm);
+        let image = product.img;
+        if(isFilePicked){
+            image = await postImage();
+            if(!image){
+                return;
+            }
+        }
+
+        const checkPost = await postProduct(dataForm,image);
 
         if(checkPost){
             eventClose();
@@ -136,7 +193,7 @@ export default function EditForm({ eventClose, product} : any) {
         </Box>
         <Grid container spacing={2}>
             <Grid item xs={12}>
-                <TextField id="standard-basic" label="Tên" variant="standard" name='name' fullWidth value={product.name || ''}/>
+                <TextField id="standard-basic" label="Tên" variant="standard" name='name' fullWidth value={name} onChange={(e)=>setName(e.target.value)}/>
             </Grid>
             <Grid item xs={4}>
                 <FormControl fullWidth>
@@ -182,8 +239,6 @@ export default function EditForm({ eventClose, product} : any) {
                             },
                         }}
                     >   
-
-
                         {
                             Array.isArray(data) && data.map((item : any) =>
                                 (
@@ -206,8 +261,54 @@ export default function EditForm({ eventClose, product} : any) {
                     type="number" 
                     InputLabelProps={{
                         shrink: true,
+                      }}
+                    inputProps={{
+                        min: 0, 
+                    }}
+                    value={price}
+                    onChange={(e)=>setPrice(e.target.value)}
+                    fullWidth/>
+            </Grid>
+            <Grid item xs={12} >
+                <TextField 
+                    id="standard-basic" 
+                    label="Mô Tả" 
+                    name='description' 
+                    multiline
+                    variant="filled"
+                    rows={4}
+                    inputProps={{
+                        min: 0, 
+                    }}
+                    value={description}
+                    onChange={(e)=>setDescription(e.target.value)}
+                    fullWidth/>
+            </Grid>
+            <Grid item xs={12} >
+                <TextField 
+                    id="standard-basic" 
+                    label="Chi tiết" 
+                    name='detail' 
+                    multiline
+                    variant="filled"
+                    inputProps={{
+                        min: 0, 
+                    }}
+                    value={info}
+                    onChange={(e)=>setInfo(e.target.value)}
+                    rows={4}
+                    fullWidth/>
+            </Grid>
+            <Grid item xs={12}>
+                <TextField 
+                    id="standard-basic" 
+                    variant="standard" 
+                    name='img' 
+                    type="file"
+                    onChange={changeHandler}
+                    InputLabelProps={{
+                        shrink: true,
                       }} 
-                    value={product.price}
                     fullWidth/>
             </Grid>
             <Grid item xs={12}>

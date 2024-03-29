@@ -20,17 +20,21 @@ const SearchBar: React.FC = () => {
   const handleEnterKeyPress = (e: any) => {
     if (e.key === 'Enter') {
         const urlSearchParams = new URLSearchParams(window.location.search);
-        const hasSearchParam = urlSearchParams.has('search');
+        const currentPath = window.location.pathname;
 
-        if (hasSearchParam) {
-          urlSearchParams.set('search', searchTerm);
-        } else {
-          urlSearchParams.append('search', searchTerm);
-        }
+        if (currentPath.includes("/products")) {
+          const newUrl = `${currentPath}/list_products?${urlSearchParams.toString()}`;
+          router.push(newUrl);
+      } else {
+          if (urlSearchParams.has('search')) {
+              urlSearchParams.set('search', searchTerm);
+          } else {
+              urlSearchParams.append('search', searchTerm);
+          }
 
-        const newUrl = `${window.location.pathname}?${urlSearchParams.toString()}`
-
-        router.push(newUrl);
+          const newUrl = `${currentPath}?${urlSearchParams.toString()}`;
+          router.push(newUrl);
+      }
     }
 };
 

@@ -3,13 +3,8 @@ import { Close } from '@mui/icons-material'
 import { Alert, Button, FormControl, Grid, IconButton, InputLabel, List, ListItem, ListItemButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import axios from 'axios'
-import { AnyNode } from 'postcss'
 import React from 'react'
 import Swal from 'sweetalert2'
-
-
-
-
 
 export default function AddForm({eventClose}: any) {
     const [data, setData] = React.useState([]);
@@ -40,6 +35,7 @@ export default function AddForm({eventClose}: any) {
 
         setIsFilePicked(true);
     };
+    
     const getAllProductType = async() => {
         try{
           const res = await axios.get(`http://localhost:8080/api/v1/types`)
@@ -168,8 +164,6 @@ export default function AddForm({eventClose}: any) {
         fetchData();
     }, []);
 
-    console.log(data)
-
     const handleChange = (event: SelectChangeEvent) => {
         setPet(event.target.value);
     };
@@ -181,25 +175,20 @@ export default function AddForm({eventClose}: any) {
         setType(event.target.value);
     };
 
-    console.log("pet", pet)
-
-    console.log("valid",formValid)
-
   return (
     <>  
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-
-        <Box>
-            <Typography variant='h5' align='center' fontWeight={"600"}>
-                Thêm Sản Phẩm
-            </Typography>
-            <IconButton 
-                style={{ position: "absolute", top: "0", right: "0"}}
-                onClick={eventClose}
-            >
-                <Close />    
-            </IconButton>           
-        </Box>
+            <Box>
+                <Typography variant='h5' align='center' fontWeight={"600"}>
+                    Thêm Sản Phẩm
+                </Typography>
+                <IconButton 
+                    style={{ position: "absolute", top: "0", right: "0"}}
+                    onClick={eventClose}
+                >
+                    <Close />    
+                </IconButton>           
+            </Box>
         <Grid container spacing={2}>
             <Grid item xs={12}>
                 <TextField id="standard-basic" label="Tên" variant="standard" name='name' fullWidth/>
@@ -269,6 +258,7 @@ export default function AddForm({eventClose}: any) {
                     type="number" 
                     InputLabelProps={{
                         shrink: true,
+                        
                       }} 
                     fullWidth/>
             </Grid>

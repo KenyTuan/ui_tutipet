@@ -187,16 +187,36 @@ export default function ProductDetail(id: any) {
                             <Divider />
                             <Box height={10}/>
                             <Stack direction="row" spacing ={1} justifyContent={"flex-end"}>
-                                <Typography variant='h4' gutterBottom >
-                                150.000 VND
-                                </Typography>
-                                <Typography variant='h5' gutterBottom sx={{textDecoration: 'line-through',opacity: 0.6, }}>
+                            {
+                              !!product?.promotion?
+                              (
+                              <Box sx={{display: "flex", flexDirection: "row", justifyContent: 'flex-end'}}>
+                                  <Typography variant="h4" color="text.secondary" sx={{fontWeight: 700,}} marginRight={1} >
+                                    {(product?.promotion.discountType === "PERCENTAGE"?(product.price-product.price * product?.promotion.value):(product.price - product?.promotion.value)).toLocaleString('en-US', {
+                                    style: 'decimal',
+                                    minimumFractionDigits: 3,
+                                    maximumFractionDigits: 3,
+                                  })}
+                                  </Typography>
+                                  <Typography variant="h6" color="text.secondary" sx={{textDecoration: 'line-through',opacity: 0.6, }}>
                                     {product?.price.toLocaleString('en-US', {
-                                      style: 'decimal',
-                                        minimumFractionDigits: 3,
-                                        maximumFractionDigits: 3,
-                                      })} VND
+                                    style: 'decimal',
+                                      minimumFractionDigits: 3,
+                                      maximumFractionDigits: 3,
+                                    })} VND
                                 </Typography>
+                              </Box>
+                              ):(
+                                <Box sx={{display: "flex", flexDirection: "row", justifyContent: 'flex-end'}}>
+                                <Typography variant="h4" color="text.secondary" sx={{fontWeight: 700,}}  >
+                                    {product?.price.toLocaleString('en-US', {
+                                    style: 'decimal',
+                                    minimumFractionDigits: 3,
+                                    maximumFractionDigits: 3,
+                                  })}
+                                </Typography>
+                            </Box>
+                              )}
                             </Stack>
                             
                             <Stack direction="row" spacing ={1} justifyContent={"space-evenly"}>

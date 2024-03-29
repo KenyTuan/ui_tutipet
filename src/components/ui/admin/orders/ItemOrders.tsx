@@ -1,8 +1,6 @@
-import { Delete, Edit, KeyboardArrowDown, KeyboardArrowUp, Visibility } from '@mui/icons-material';
-import { Box, Stack, Tab, TableCell, TableRow } from '@mui/material';
+import { Delete, Edit, Visibility } from '@mui/icons-material';
+import {  Stack, TableCell, TableRow } from '@mui/material';
 import React from 'react'
-import IconButton from '@mui/material/IconButton';
-import { Board, Column } from '../dashboard/Board';
 
 interface ListCartProps {
   row: any;
@@ -14,28 +12,43 @@ interface ListCartProps {
 
 
 const ItemOrders: React.FC<ListCartProps> = ({ row, handleEditProduct, deleteProductByID,handleShowOrder}) =>{
-  const [open,setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleTotal = () => {
+
+      const product = row.productOrderRes
+      const promotion = row.promotion
+      console.log("product",product)
+      console.log("promotion",promotion)
+
+      
+      
+    };
+
+    handleTotal();
+}, []);
 
   return (
     <>
       <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
         <TableCell key={"id"} align={"center"} className='border-r-2'>
-            {row.id}
+          {row.id}
         </TableCell>
         <TableCell key={"name"} align={"center"} className='border-r-2'>
-            {row.address.receiverName}
+          {row.address.receiverName}
         </TableCell>
         <TableCell key={"type"} align={"center"} className='border-r-2'>
-            {row.address.address}
+          {row.address.address}
         </TableCell>
         <TableCell key={"pet"} align={"center"} className='border-r-2'>
-            {row.address.phone}
+          {row.address.phone}
         </TableCell>
         <TableCell key={"price"} align={"center"} className='border-r-2'>
           {row.productOrderRes.reduce((total: number, item: any) => total + item.quantity, 0)}
         </TableCell>
         <TableCell key={"total"} align={"center"} className='border-r-2'>
-            {(row.productOrderRes.reduce((total: number, item: any) => total + (item.quantity * item.product.price), 0) *1000).toLocaleString('en-US', {
+            {(row.productOrderRes.reduce((total: number, item: any) => total + (item.quantity * item.product.price), 0))
+            .toLocaleString('en-US', {
               style: 'decimal',
                 minimumFractionDigits: 3,
                 maximumFractionDigits: 3,
