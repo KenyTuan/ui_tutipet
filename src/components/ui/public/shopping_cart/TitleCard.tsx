@@ -86,7 +86,15 @@ export default function TitleCard() {
         let total = 0;
         productCarts.forEach((item) => {
           if (item.checked) {
-            total += item.quantity * item.productRes.price;
+            const price = !!item?.productRes?.promotion? (
+                item?.productRes?.promotion.discountType === "PERCENTAGE"?
+                item?.productRes?.price - item?.productRes?.price * item?.productRes?.promotion.value : 
+                item?.productRes?.price - item?.productRes?.promotion.value)
+                :(
+                    item?.productRes?.price
+                )
+            
+            total += item.quantity * price;
           }
         });
         return total;
@@ -228,7 +236,6 @@ export default function TitleCard() {
             return item;
           });
         });
-
       };
 
       const handleCheckOut = () => {
@@ -262,7 +269,6 @@ export default function TitleCard() {
     
 
     return (
-
         <Box >
         {productCarts.length === 0? (
             <Box display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"}>
@@ -364,7 +370,6 @@ export default function TitleCard() {
                                 </Typography>
                                 <Button variant='text' onClick={handleDeleteAll}>
                                     <Typography variant='body1' textAlign={"center"} textTransform={'capitalize'} 
-                                        
                                     >
                                         Xóa Tất Cả
                                     </Typography>

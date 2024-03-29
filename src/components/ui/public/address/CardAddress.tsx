@@ -17,7 +17,7 @@ export default function CardAddress({ item, onDelete }: { item: any; onDelete: (
       };
 
   return (
-    <Box sx={{borderWidth: 1, padding: 2, marginBottom: 2}}>
+    <Box sx={{borderWidth: 1, padding: 2, marginBottom: 2, backgroundColor: "#eee"}}>
         <FormEditAddress open={open} handleClose={handleClose} item={item}/>
         <Grid container spacing={2}>
             <Grid item xs={12}>

@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, Grid, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Divider, List, Paper, Stack, Typography } from '@mui/material'
 import FormAddAddress from './FormAddAddress';
 import axios from 'axios';
 import CardAddress from './CardAddress';
@@ -12,29 +12,26 @@ export default function ListAddress() {
     const [error, setError] = React.useState("");
 
     const getListAddress = React.useCallback(async () => {
-        try {
-          const token = getCookieValue('AuthToken');
-          if (!token) {
-            setLoading(false);
-            return false;
-          }
-    
-          const res = await axios.get(`http://localhost:8080/api/v1/address/user`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-    
-          console.log("address: ", res);
-          setAddresses(res.data._embedded.addressResList);
+      try {
+        const token = getCookieValue('AuthToken');
+        if (!token) {
           setLoading(false);
-        } catch (error) {
-          console.error("error", error);
-          setError("Error fetching addresses. Please try again.");
-          setLoading(false);
+          return false;
         }
-      }, []);
+        const res = await axios.get(`http://localhost:8080/api/v1/address/user`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        setAddresses(res.data._embedded.addressResList);
+        setLoading(false);
+      } catch (error) {
+        console.error("error", error);
+        setError("Error fetching addresses. Please try again.");
+        setLoading(false);
+      }
+    }, []);
 
     const deleteProductCart = async(id: number) =>{
         try{
@@ -61,7 +58,6 @@ export default function ListAddress() {
         const name = cookieName + "=";
         const decodedCookie = decodeURIComponent(document.cookie);
         const cookieArray = decodedCookie.split(';');
-        
         for (let i = 0; i < cookieArray.length; i++) {
             let cookie = cookieArray[i].trim();
             if (cookie.indexOf(name) === 0) {
@@ -72,11 +68,8 @@ export default function ListAddress() {
     }
 
     React.useEffect(() => {
-        const fetchData = async () => {
-          await getListAddress();
-        };
-    
-        fetchData();
+        getListAddress();
+        
       }, [getListAddress]);
 
     const handleClickOpen = () => {
@@ -85,19 +78,19 @@ export default function ListAddress() {
   
     const handleClose = () => {
       setOpen(false);
+      getListAddress()
     };
 
     const handleClickDelete = async (id: number) => {
-        const checkPost = await deleteProductCart(id);
-        if (checkPost) {
-          setAddresses(addresses.filter(item => item.id !== id));
-        }
-      };
-
+      const checkPost = await deleteProductCart(id);
+      if (checkPost) {
+        setAddresses(addresses.filter(item => item.id !== id));
+      }
+    };
   return (
     <Paper elevation={3}>
         <Box sx={{padding: 3, marginBottom: 5}}>
-            <FormAddAddress open={open} handleClose={handleClose} />
+            <FormAddAddress open={open} handleClose={handleClose}   />
             <Stack display={'flex'} flexDirection={"row"} justifyContent={"space-between"}>
                 <Typography variant='h5' fontWeight={700} align='center'>Địa Chỉ Của Tôi</Typography>
                 <Button size="medium" variant='contained' style={{fontWeight: 600, backgroundColor: "#FC9C55" }}>
@@ -111,7 +104,7 @@ export default function ListAddress() {
             <Box  sx={{padding: 3,}}>
                 <Box paddingTop={2} paddingBottom={2}>
                     <Typography variant='h6' fontWeight={600}>
-                    Địa chỉ
+                      Địa chỉ
                     </Typography>
                 </Box>
                 <List
@@ -131,7 +124,9 @@ export default function ListAddress() {
                             <CardAddress key={address.id}  item={address} onDelete={handleClickDelete} />
                         ))
                     ) : (
-                        <Typography variant="body2">No addresses found.</Typography>
+                      <Stack display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                        <Typography variant="subtitle1" fontStyle={"italic"}>No addresses found.</Typography>
+                      </Stack>
                     )}
                 </List>
             </Box>

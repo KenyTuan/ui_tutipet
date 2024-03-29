@@ -1,11 +1,7 @@
 "use client"
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { Autocomplete, Box, Button, CardActionArea, CardMedia, Divider, Modal, Stack, TextField, Typography } from '@mui/material';
@@ -52,8 +48,42 @@ import axios from 'axios';
     return null;
   }
 
+  const columns: Column[] = [
+    { id: 'id', label: 'ID', minWidth: 60, align: 'center' },
+    { id: 'img', label: 'Hình ảnh', minWidth: 80, align: 'center' },
+    { id: 'name', label: 'Sản Phẩm', minWidth: 200, align: 'center' },
+    { id: 'type', label: 'Loại', minWidth: 170, align: 'center' },
+    { id: 'pet', label: 'Pet', minWidth: 50, align: 'center' },
+    { id: 'price', label: 'Giá', minWidth: 150, align: 'center'},
+    { id: 'discount', label: 'Giá Bán', minWidth: 150, align: 'center'},
+    { id: 'status', label: 'Trạng Thái', minWidth: 50, align: 'center' },
+    { id: 'action', label: 'Sửa/Xóa', minWidth: 50, align: 'center' },
+];
 
 
+export default function ListProduct() {
+  const [data, setData] = React.useState<Data[]>([]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [openAdd, setOpenAdd] = React.useState(false);
+  const handleOpenAdd = () => setOpenAdd(true);
+  const handleCloseAdd = () => {setOpenAdd(false); fetchData()};
+  const [openEdit, setOpenEdit] = React.useState(false);
+  const handleOpenEdit = () => setOpenEdit(true);
+  const handleCloseEdit = () => {setOpenEdit(false); fetchData()};
+  const [product, setProduct] = React.useState(null);
+
+  const getListProduct = async() =>{
+    try{
+      const res = await axios.get(`http://localhost:8080/api/v1/products/active`)
+
+      console.log("products: ", res)
+      
+      return res.data
+    }catch(error){
+      console.error("error",error)
+    }
+  }
 
   async function deleteProduct(id: number) {
     const token = getCookieValue('AuthToken');
@@ -69,121 +99,83 @@ import axios from 'axios';
     if(res.status != 204){
         Swal.fire("ERROR!", "ERROR!", "error");
     }
-    Swal.fire("Deleted!", "Your file has been deleted.", "success")
-    .then(()=>(window.location.reload()))
+    Swal.fire("Deleted!", "Bạn Đã Xóa Thành Công.", "success")
+    .then(()=>(fetchData()))
   }
 
-  const columns: Column[] = [
-    { id: 'id', label: 'ID', minWidth: 60, align: 'center' },
-    { id: 'img', label: 'Hình ảnh', minWidth: 80, align: 'center' },
-    { id: 'name', label: 'Tên Sản Phẩm', minWidth: 250, align: 'center' },
-    { id: 'type', label: 'Loại Sản Phẩm', minWidth: 170, align: 'center' },
-    { id: 'pet', label: 'Dành Cho Pet', minWidth: 150, align: 'center' },
-    { id: 'price', label: 'Giá', minWidth: 90, align: 'center'},
-    { id: 'status', label: 'Trạng Thái', minWidth: 50, align: 'center' },
-    { id: 'action', label: 'Sửa/Xóa', minWidth: 50, align: 'center' },
-];
-
-
-export default function ListProduct() {
-    const [data, setData] = React.useState<Data[]>([]);
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [openAdd, setOpenAdd] = React.useState(false);
-    const handleOpenAdd = () => setOpenAdd(true);
-    const handleCloseAdd = () => setOpenAdd(false);
-    const [openEdit, setOpenEdit] = React.useState(false);
-    const handleOpenEdit = () => setOpenEdit(true);
-    const handleCloseEdit = () => setOpenEdit(false);
-    const [product, setProduct] = React.useState(null);
-
-    const getListProduct = async() =>{
-      try{
-        const res = await axios.get(`http://localhost:8080/api/v1/products/active`)
-  
-        console.log("products: ", res)
-        
-        return res.data
-      }catch(error){
-        console.error("error",error)
-      }
+  const fetchData = React.useCallback(async () => {
+    try {
+      const result = await getListProduct();
+      setData(result._embedded.productResList);
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
-
-    const fetchData = React.useCallback(async () => {
-      try {
-        const result = await getListProduct();
-        setData(result._embedded.productResList);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    },[])
+  },[])
     
-    React.useEffect(() => {
-      fetchData();
-    }, [fetchData]);
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
       
-    const deleteProductByID = (id: number) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-        }).then((result) => {
-            if (result.value) {
-              deleteProduct(id);
-            }
-        });
-    };
+  const deleteProductByID = (id: number) => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+        if (result.value) {
+          deleteProduct(id);
+          
+        }
+    });
+  };
 
-    const updateEnableByID = async (id: number,active: boolean) =>  {
-      const token = getCookieValue('AuthToken');
-      if(!token){
-        return;
-      }
-      const enable = !active ? "ENABLED" : "DISABLED"
-      const res = await axios.patch(`http://localhost:8080/api/v1/products?id=${id}&enable=${enable}`,
-          {
-            headers:{
-                'Authorization': `Bearer ${token}`,
-            }
-          }
-      )
-
-      if(res.status != 201){
-          Swal.fire("ERROR!", "ERROR!", "error");
-      }
-
-      Swal.fire("Đã Cập Nhật!", `Bạn Đã ${!active?"Ẩn Sản Phẩm Này": "Hiện Sản Phẩm Này" }.`, "success")
-      .then(()=>(window.location.reload()))
+  const updateEnableByID = async (id: number,active: boolean) =>  {
+    const token = getCookieValue('AuthToken');
+    if(!token){
+      return;
     }
+    const enable = !active ? "ENABLED" : "DISABLED"
+    const res = await axios.patch(`http://localhost:8080/api/v1/products?id=${id}&enable=${enable}`,
+        {
+          headers:{
+              'Authorization': `Bearer ${token}`,
+          }
+        }
+    )
+
+    if(res.status != 201){
+        Swal.fire("ERROR!", "ERROR!", "error");
+    }
+
+    Swal.fire("Đã Cập Nhật!", `Bạn Đã ${!active?"Ẩn Sản Phẩm Này": "Hiện Sản Phẩm Này" }.`, "success")
+    .then(()=>(fetchData()))
+  }
     
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+  const handleChangePage = (event: unknown, newPage: number) => {
+      setPage(newPage);
+  };
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setRowsPerPage(+event.target.value);
+      setPage(0);
+  };
 
-    const handleEditProduct = (data: any) => {
-      setProduct(data);
-      handleOpenEdit();
-    };
+  const handleEditProduct = (data: any) => {
+    setProduct(data);
+    handleOpenEdit();
+  };
 
   const filterData = (v:any) => {
-      if (v) {
-          setData([v]);
-      } else {
-          fetchData();
-      }
-    };
-
-
-
+    if (v) {
+        setData([v]);
+    } else {
+        fetchData();
+    }
+  };
 
   return (
     <>
@@ -233,7 +225,7 @@ export default function ListProduct() {
               sx={{ flexGrow: 1 }}
             ></Typography>
             <Button variant="contained" endIcon={<AddCircle />} className='bg-blue-500' onClick={handleOpenAdd}>
-              Add
+              Thêm Sản Phẩm
             </Button>
           </Stack>
           <Box height={25} />
@@ -253,7 +245,7 @@ export default function ListProduct() {
                         src={row.img}
                         component="img"
                         height={12}
-                        style={{ height: '8rem', padding: 10 }}
+                        style={{ height: '8rem', objectFit: "contain" }}
                         alt="hình cún con"
                       />
                     </CardActionArea>
@@ -265,7 +257,7 @@ export default function ListProduct() {
                     {row.type.name}
                 </TableCell>
                 <TableCell key={"pet"} align={"center"} className='border-r-2'>
-                    {row.type.petTypes}
+                    {row.type.petTypes==="CAT"? "Mèo": "Chó"}
                 </TableCell>
                 <TableCell key={"price"} align={"center"} className='border-r-2'>
                     {row.price.toLocaleString('en-US', {
@@ -274,13 +266,31 @@ export default function ListProduct() {
                           maximumFractionDigits: 3,
                         })} VND
                 </TableCell>
+                <TableCell key={"price"} align={"center"} className='border-r-2'>
+                  {!!row.promotion ?
+                    (row.promotion.discountType === "PERCENTAGE"?
+                    (row.price-row.price * row.promotion.value)
+                    :
+                    (row.price - row.promotion.value)).toLocaleString('en-US', {
+                        style: 'decimal',
+                        minimumFractionDigits: 3,
+                        maximumFractionDigits: 3,
+                      })
+                      :(
+                        row.price.toLocaleString('en-US', {
+                          style: 'decimal',
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                          })
+                      )} VND
+                </TableCell>
                 <TableCell key={"status"} align={"center"} className='border-r-2'>
                   {row.status == "ENABLED"?
                   (
-                    <Button variant="contained" className='bg-green-500 hover:bg-green-600 text-sm' onClick={()=>updateEnableByID(row.id,true)}>{row.status}</Button>
+                    <Button variant="contained" className='bg-green-500 hover:bg-green-600 text-sm' onClick={()=>updateEnableByID(row.id,true)}>Hiện</Button>
 
                   ):(
-                    <Button variant="outlined"  onClick={()=>updateEnableByID(row.id,false)}>{row.status}</Button>
+                    <Button variant="outlined"  onClick={()=>updateEnableByID(row.id,false)}>Ẩn</Button>
                   )
                 }
                 </TableCell>

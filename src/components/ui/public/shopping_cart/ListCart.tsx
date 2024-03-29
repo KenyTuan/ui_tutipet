@@ -74,13 +74,28 @@ interface ListCartProps {
                 </Box>
                 <Divider orientation="vertical" flexItem />
                 <Box width={"15%"} justifyContent={"center"} display={"flex"}>
-                    <Typography variant='subtitle2' >
-                        {item?.productRes?.price.toLocaleString('en-US', {
-                        style: 'decimal',
-                          minimumFractionDigits: 3,
-                          maximumFractionDigits: 3,
-                        })} VND
+                {
+                    !!item?.productRes?.promotion?
+                    (
+                        <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}} marginRight={1} >
+                            {(item?.productRes?.promotion.discountType === "PERCENTAGE"?
+                            (item?.productRes?.price - item?.productRes?.price * item?.productRes?.promotion.value):
+                            (item?.productRes?.price - item?.productRes?.promotion.value) ).toLocaleString('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                            })} VND
+                        </Typography>
+
+                    ):(
+                    <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}}  >
+                        {(item?.productRes?.price ).toLocaleString('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                            })} VND
                     </Typography>
+                    )}
                 </Box>
                 <Divider orientation="vertical" flexItem />
                 <Box width={"15%"} paddingLeft={3} paddingRight={3} justifyContent={"center"} display={"flex"}>
@@ -99,13 +114,28 @@ interface ListCartProps {
                 </Box>
                 <Divider orientation="vertical" flexItem />
                 <Box width={"15%"} justifyContent={"center"} display={"flex"}>
-                    <Typography>
+                    {
+                    !!item?.productRes?.promotion?
+                    (
+                        <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}} marginRight={1} >
+                            {(item?.productRes?.promotion.discountType === "PERCENTAGE"?
+                            (item?.productRes?.price - item?.productRes?.price * item?.productRes?.promotion.value) *  quantity:
+                            (item?.productRes?.price - item?.productRes?.promotion.value) * quantity).toLocaleString('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                            })} VND
+                        </Typography>
+
+                    ):(
+                    <Typography variant="body1" color="text.secondary" sx={{fontWeight: 700,}}  >
                         {(item?.productRes?.price * quantity).toLocaleString('en-US', {
-                        style: 'decimal',
-                          minimumFractionDigits: 3,
-                          maximumFractionDigits: 3,
-                        })} VND
+                            style: 'decimal',
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                            })}
                     </Typography>
+                    )}
                 </Box>
                 <Divider orientation="vertical" flexItem />
                 <Box width={"10%"} paddingLeft={2} justifyContent={"center"} display={"flex"}>

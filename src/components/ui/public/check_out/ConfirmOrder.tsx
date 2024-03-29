@@ -20,7 +20,7 @@ interface Address {
   address: string;
 }
 
-const ConfirmOrder: React.FC<ConfirmOrderProps> = ({ id }) =>{
+const ConfirmOrder: React.FC<ConfirmOrderProps> = () =>{
   const [productCarts, setProductCarts] = React.useState<any[]>([]);
   const route = useRouter()
   const [totalPrice, setTotalPrice] = React.useState(0);
@@ -50,12 +50,10 @@ const ConfirmOrder: React.FC<ConfirmOrderProps> = ({ id }) =>{
 
 
 
-  const postOrder = async (latestProductCarts: any[]) => {
+  const postOrder = async () => {
     try {
       const token = getCookieValue('AuthToken');
-
       if (!token ) {
-        
         return false;
       }
 
@@ -63,12 +61,11 @@ const ConfirmOrder: React.FC<ConfirmOrderProps> = ({ id }) =>{
         setMessage("Vui Lòng Chọn Thông Tin Nhận Hàng!")
         return;
       }
-
-      const res = await axios.post(`http://localhost:8080/api/v1/orders`, 
+      
+      const res = await axios.post(`http://localhost:8080/api/v1/create_payment`, 
       {
-        address_id: selected?.id,
-        note: "",
-        productOrderReqs: latestProductCarts,
+
+        amount: totalPrice
       },
       {
         headers: {
@@ -79,33 +76,57 @@ const ConfirmOrder: React.FC<ConfirmOrderProps> = ({ id }) =>{
 
         console.log("order: ", res);
 
-        if(res.status != 201){
-          setMessage("Đặt Hàng Không Thành Công!")
+        if(res.status != 200){
           return false;
         }
-
-        return true;
+        
+        return res.data;
       } catch (error) {
         console.error("error", error);
-        setMessage("Đặt Hàng Không Thành Công!")
       }
     };
 
     const handleClickPayment= async () => {
-      const latestProductCarts = productCarts.map(({ id, productRes, quantity }) => ({
-          productCartId: id,
-          productId: productRes.id,
-          quantity,
-      }));
+
+        const promotion: any[] = [];
+        productCarts.forEach((item: any) => {
+            if (item.productRes.promotion) {
+                console.log("item", item);
+                promotion.push(item.productRes.promotion.id);
+            }
+        });
+
+        const promotionCodes =  [...new Set(promotion)];
+
+        console.log("promotionCodes",promotionCodes)
+        const latestProductCarts = productCarts.map(({ id, productRes, quantity }) => ({
+            productCartId: id,
+            productId: productRes.id,
+            quantity,
+            
+        }));
       
+        const checkPost = await postOrder();
 
-
-      const checkPost = await postOrder(latestProductCarts);
-
-      if(checkPost){
-        Swal.fire("Thành Công!", "Đã Xong", "success").then(() => {
-            route.replace("/products")
-          });
+        if(checkPost){
+          const order = {
+            address_id: selected?.id,
+            note: "",
+            productOrderReqs: latestProductCarts,
+            promotionCodes: promotionCodes
+            
+          }
+        Swal.fire({
+          title: "Vui lòng thanh toán qua VnPay?",
+          icon: "success",
+          showCancelButton: true,
+          confirmButtonText: "Thanh Toán",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            sessionStorage.setItem('orderData', JSON.stringify(order));
+            route.replace(checkPost.redirect_url)
+          }
+        });
         return;
       }
       Swal.fire("Lỗi!", "" + message , "error");
@@ -132,7 +153,14 @@ const ConfirmOrder: React.FC<ConfirmOrderProps> = ({ id }) =>{
     const calculateTotalPrice = React.useCallback(() => {
       let total = 0;
       productCarts.forEach((item: any) => {
-        total += item.quantity * item.productRes.price;
+        const price = !!item?.productRes?.promotion? (
+          item?.productRes?.promotion.discountType === "PERCENTAGE"?
+          item?.productRes?.price - item?.productRes?.price * item?.productRes?.promotion.value : 
+          item?.productRes?.price - item?.productRes?.promotion.value)
+          :(
+              item?.productRes?.price
+          )
+        total += item.quantity * price;
       });
       
       setTotalPrice(total);
@@ -236,8 +264,12 @@ const ConfirmOrder: React.FC<ConfirmOrderProps> = ({ id }) =>{
                   </Grid>
                   <Grid item xs={12}>
                     <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-between"}>
-                        <Typography>Tổng Thành Tiền:</Typography>
-                        <Typography>{totalPrice} VND</Typography>
+                        <Typography className='text-xl font-bold'>Tổng Thành Tiền:</Typography>
+                        <Typography className='text-xl font-bold'>{totalPrice.toLocaleString('en-US', {
+                        style: 'decimal',
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                        })} VND</Typography>
                     </Stack>
                   </Grid>
                   <Grid item xs={12} display={"flex"} flexDirection={"row"} justifyContent={"Center"}>

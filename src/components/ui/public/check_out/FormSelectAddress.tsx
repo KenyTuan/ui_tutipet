@@ -12,51 +12,51 @@ interface ListCartProps {
 }
 
 const FormSelectAddress:React.FC<ListCartProps>  =({ open , handleClose, handleSelected}) =>  {
-    const [openAdd, setOpen] = React.useState(false);
-    const [addresses, setAddresses] = React.useState<any[]>([]);
-    const handleClickAddOpen = () => {
-        setOpen(true);
-      };
-    
-      const handleAddClose = () => {
-        setOpen(false);
-        getListAddress()
-      };
+  const [openAdd, setOpen] = React.useState(false);
+  const [addresses, setAddresses] = React.useState<any[]>([]);
+  const handleClickAddOpen = () => {
+      setOpen(true);
+    };
+  
+  const handleAddClose = () => {
+    setOpen(false);
+    getListAddress()
+  };
 
-      function getCookieValue(cookieName: string) {
-        const name = cookieName + "=";
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const cookieArray = decodedCookie.split(';');
-        
-        for (let i = 0; i < cookieArray.length; i++) {
-            let cookie = cookieArray[i].trim();
-            if (cookie.indexOf(name) === 0) {
-              return cookie.substring(name.length, cookie.length);
-            }
-          }
-          return null;
+  function getCookieValue(cookieName: string) {
+    const name = cookieName + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+    
+    for (let i = 0; i < cookieArray.length; i++) {
+        let cookie = cookieArray[i].trim();
+        if (cookie.indexOf(name) === 0) {
+          return cookie.substring(name.length, cookie.length);
+        }
       }
+      return null;
+  }
     
-      const getListAddress = React.useCallback(async () => {
-        try {
-          const token = getCookieValue('AuthToken');
-          if (!token) {
-            return false;
-          }
-    
-          const res = await axios.get(`http://localhost:8080/api/v1/address/user`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-    
-            console.log("address: ", res);
-            setAddresses(res.data._embedded.addressResList);
-          } catch (error) {
-            console.error("error", error);
-          }
-    }, []);
+  const getListAddress = React.useCallback(async () => {
+    try {
+      const token = getCookieValue('AuthToken');
+      if (!token) {
+        return false;
+      }
+
+      const res = await axios.get(`http://localhost:8080/api/v1/address/user`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+        console.log("address: ", res);
+        setAddresses(res.data._embedded.addressResList);
+      } catch (error) {
+        console.error("error", error);
+      }
+  }, []);
     
     React.useEffect(() => {
         const fetchData = async () => {

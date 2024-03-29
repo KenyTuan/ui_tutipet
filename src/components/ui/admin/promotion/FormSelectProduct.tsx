@@ -5,7 +5,12 @@ import Typography from '@mui/material/Typography';
 import React from 'react'
 import TransferList from './TranferList';
 
-export default function FormSelectProduct(eventClose: any, setData: any) {
+interface FormSelectProductProps {
+    eventClose: () => void;
+    setData: (data: any) => void;
+}
+
+export default function FormSelectProduct({ eventClose, setData }: FormSelectProductProps){
 
   return (
     <>
@@ -14,7 +19,6 @@ export default function FormSelectProduct(eventClose: any, setData: any) {
                 <Typography variant='h5' align='center' fontWeight={"600"}>
                     Chọn Sản Phẩm Cho Chương Trình Ưu Đãi
                 </Typography>
-
                 <IconButton 
                     style={{ position: "absolute", top: "0", right: "0"}}
                     onClick={eventClose}
@@ -23,7 +27,7 @@ export default function FormSelectProduct(eventClose: any, setData: any) {
                 </IconButton>           
             </Box>
             <Box height={8}/>
-            <TransferList setData={setData}/>
+            <TransferList setDatas={setData} eventClose={eventClose} />
         </Box>
     </>
   )

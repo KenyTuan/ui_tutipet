@@ -12,8 +12,6 @@ const links = [
     { name: 'Bài Viết', href: '/blogs'},
   ];
 
-
-  
   export default function NavLinks() {
     const pathname = usePathname();
 

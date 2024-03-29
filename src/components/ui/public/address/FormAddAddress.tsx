@@ -1,16 +1,16 @@
 "use client"
 import { Close } from '@mui/icons-material';
-import { Alert, Box, Button, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material'
+import { Alert, Box, Button, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
 import axios from 'axios';
 import React from 'react'
-
 interface ListCartProps {
     open: boolean
     handleClose: () => void;
 }
 
- const FormAddAddress:React.FC<ListCartProps>  =({ open , handleClose }) =>  {
+const isPhone = (phone: string) => /(03|05|07|08|09|01[2689])[0-9]{8}\b/.test(phone);
 
+ const FormAddAddress:React.FC<ListCartProps>  =({ open , handleClose }) =>  {
     const [provinces, setProvinces] = React.useState([]);
     const [districts, setDistricts] = React.useState([]);
     const [wards, setWards] = React.useState([]);
@@ -22,22 +22,36 @@ interface ListCartProps {
     const [address,setAddress] = React.useState(""); 
     const [success,setSuccess] = React.useState(false);
     const [submitSuccess, setSuccessSubmit] = React.useState(false);
+    const [receiverNameError, setReceiverNameError] = React.useState(false);
+    const [phoneError, setPhoneError] = React.useState(false);
 
-    console.log("selectProvinces",selectProvinces)
-    console.log("selectDistricts",selectDistricts)
-    console.log("selectwards",selectwards)
-    console.log("success", success)
+    const handleReceiverName = () => {
+        if (!receiverName) {
+            setReceiverNameError(true);
+            return;
+        }
+    
+        setReceiverNameError(false);
+      };
+
+    const handlePhone = () => {
+        if (!isPhone(phone)) {
+            setPhoneError(true);
+            return;
+        }
+        setPhoneError(false);
+    };
 
     const checkedInputSuccess = React.useCallback(() => {
         return (
             selectProvinces !== null &&
             selectDistricts !== null &&
             selectwards !== null &&
-            receiverName.trim() !== "" &&
-            phone.trim() !== "" &&
+            !receiverNameError &&
+            !phoneError &&
             address.trim() !== ""
         );
-    }, [selectProvinces, selectDistricts, selectwards, receiverName, phone, address]);
+    }, [selectProvinces, selectDistricts, selectwards, receiverNameError, phoneError, address]);
 
     React.useEffect(() => {
         const checked = checkedInputSuccess();
@@ -62,7 +76,7 @@ interface ListCartProps {
 
         const sortedProvinces = modifiedProvinces.slice().sort((a:any, b:any) => a.province_name.localeCompare(b.province_name));
         
-        
+          
 
         setProvinces(sortedProvinces);
 
@@ -131,7 +145,7 @@ interface ListCartProps {
         for (let i = 0; i < cookieArray.length; i++) {
             let cookie = cookieArray[i].trim();
             if (cookie.indexOf(name) === 0) {
-            return cookie.substring(name.length, cookie.length);
+                return cookie.substring(name.length, cookie.length);
             }
         }
         return null;
@@ -141,7 +155,6 @@ interface ListCartProps {
         try {
             const token = getCookieValue('AuthToken');
             if (!token || !success) {
-
                 return false;
             }
     
@@ -174,8 +187,6 @@ interface ListCartProps {
                 }
             );
     
-            console.log("cart: ", res);
-    
             if (res.status !== 201) {
                 return false;
             }
@@ -196,7 +207,7 @@ interface ListCartProps {
         setAddress("");
         setSuccess(false);
         setSuccessSubmit(false);
-      };
+    };
 
     const handleSubmit= async () => {
         const checkPost = await postCart();
@@ -206,7 +217,7 @@ interface ListCartProps {
             handleClose()
             return;
         }
-      }
+    }
 
     React.useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -229,12 +240,12 @@ interface ListCartProps {
                     setSuccessSubmit(false);
                 }}
                 >
-                <Close fontSize="inherit" />
+                    <Close fontSize="inherit" />
                 </IconButton>
             }
             sx={{ mb: 2 }}
             >
-            Sản thẩm đã thêm vào giỏ hàng!
+                Thông tin nhận hàng đã được thêm!
             </Alert>
         </Collapse>
         <Dialog
@@ -244,7 +255,7 @@ interface ListCartProps {
             aria-describedby="alert-dialog-description"
             >
             <DialogTitle id="alert-dialog-title">
-            {"Địa Chỉ Mới"}
+                {"Địa Chỉ Mới"}
             </DialogTitle>
             <Box height={10}/>
             <DialogContent>
@@ -259,6 +270,8 @@ interface ListCartProps {
                             onChange={(event) => setReceiverName(event.target.value)}
                             label="Họ Và Tên"
                             fullWidth
+                            onBlur={handleReceiverName}
+                            error={receiverNameError}
                         />
                     </Grid>
                     <Grid item xs={6}>
@@ -270,6 +283,8 @@ interface ListCartProps {
                             onChange={(event) => setPhone(event.target.value)}
                             label="Số Điện Thoại"
                             fullWidth
+                            onBlur={handlePhone}
+                            error={phoneError}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -368,10 +383,19 @@ interface ListCartProps {
                 
             </DialogContent>
             <DialogActions>
-            <Button onClick={handleClose}>Disagree</Button>
-            <Button onClick={handleSubmit} autoFocus disabled={!success}>
-                Agree
-            </Button>
+                <Stack display={"flex"} flexDirection={"row"} justifyContent={"space-around"} width={"100%"}>
+                    <Button onClick={handleClose} variant='outlined' style={{width: 100,}} className='border-orange-500 hover:border-orange-600' >
+                        <Typography fontSize={18} fontWeight={600} className='text-orange-500 hover:text-orange-600' >
+                            Hủy
+                        </Typography>
+                    </Button>
+                    <Button onClick={handleSubmit} autoFocus disabled={!success} variant='contained' 
+                        className='bg-orange-500 hover:bg-orange-600'>
+                        <Typography fontSize={18} fontWeight={600} className='text-white' >
+                            Đồng ý
+                        </Typography>
+                    </Button>
+                </Stack>
             </DialogActions>
         </Dialog>
     </Box>

@@ -10,9 +10,7 @@ export default function ListProducts() {
     const router = useRouter();
     const [products, setProducts] = React.useState<any[]>([]);
     const searchParams = useSearchParams()
-    const [type,setType] = React.useState('');
-    const [hasFetchedData, setHasFetchedData] = React.useState(false);
-    const [search,setSearch] = React.useState('');
+    const [data,setData] =  React.useState<any[]>([]);
 
     const getListProduct = async() =>{
       try{
@@ -30,7 +28,6 @@ export default function ListProducts() {
             const result = await getListProduct();
             if (result) {
                 setProducts(result._embedded.productResList);
-                setHasFetchedData(true); 
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -38,36 +35,31 @@ export default function ListProducts() {
     }, []);
 
     React.useEffect(() => {
-        if (!hasFetchedData) {
             fetchData();
-        }
-    }, [fetchData, hasFetchedData]);
+    }, [fetchData]);
 
     React.useEffect(() => {
-        const typeFromParams = searchParams.get('type');
-        const searchFromParams = searchParams.get('search');
-        setType(typeFromParams ?? '');
-        setSearch(searchFromParams ?? '')
-    }, [searchParams]);
+      const typeFromParams = searchParams.get('type');
+      const searchFromParams = searchParams.get('search');
+  
+      const filteredProducts = products.filter(product => {
+          const productName = product?.name.toLowerCase();
+          const searchTerm = !!searchFromParams ? searchFromParams.toLowerCase().trim() : null;
+          const productType = product.type.id;
+  
+          if (!searchTerm) {
+              return !typeFromParams || productType == typeFromParams;
+          }
+  
+          const regex = new RegExp(searchTerm, 'i');
+  
+          return regex.test(productName) && (!typeFromParams || productType === typeFromParams);
+      });
+  
+      setData(filteredProducts);
+  }, [searchParams, products]);
 
-    console.log("search",searchParams.toString())
-    const filteredProducts = products.filter(product => {
-        const productName = product?.name.toLowerCase();
-        const searchTerm = search ? search.toLowerCase().trim() : null; 
-    
-        if (!searchTerm) {
-            return !type || product.type.id === type;
-        }
-    
-        const regex = new RegExp(searchTerm, 'i');
-    
-        console.log("regex", regex.test(productName));
-    
-        return regex.test(productName) && (!type || product.type.id == type);
-    });
-    
-    
-    console.log("regex",filteredProducts)
+
     
   return (
 
@@ -76,14 +68,24 @@ export default function ListProducts() {
         <SearchBar />
       </Grid>
       <Grid item xs={12} sx={{ height: "100%"}}>
-        <Grid container spacing={2} justifyContent={"center"}>
-          {filteredProducts
-          .map((row: any) => (
-            <Grid item xs={2.4} key={row.id}>
-              <CardProduct data={row} />
+      {
+        data.length === 0 ? (
+          <Box sx={{height: 350, width: "100%", backgroundColor: "white"}} justifyContent={"center"} alignItems={"center"} display={"flex"}>
+            <Typography variant='h6' color={"black"} fontStyle={"italic"} textAlign={"center"}> Không tìm thấy sản phẩm</Typography>
+          </Box>
+        ):(
+          <Box>
+            <Grid container spacing={2} justifyContent={"center"}>
+              {data
+                .map((row: any) => (
+                  <Grid item xs={2.4} key={row.id}>
+                    <CardProduct data={row} />
+                  </Grid>
+                ))}
             </Grid>
-          ))}
-        </Grid>
+          </Box>            
+        )
+      }
       </Grid>
     </Grid>
 

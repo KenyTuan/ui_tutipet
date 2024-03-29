@@ -9,6 +9,9 @@ interface ListCartProps {
     handleClose: () => void;
     item: any
 }
+
+const isPhone = (phone: string) => /(03|05|07|08|09|01[2689])[0-9]{8}\b/.test(phone);
+
 const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =>  {
     const arrAdrress = item.address.split(', ')
     const [provinces, setProvinces] = React.useState([]);
@@ -22,10 +25,29 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
     const [address,setAddress] = React.useState(arrAdrress[0]|| ""); 
     const [success,setSuccess] = React.useState(false);
     const [submitSuccess, setSuccessSubmit] = React.useState(false);
-    const [selectedWards,setSelectedWards] = React.useState(arrAdrress[3] || "");
-    const [selectedDistricts,setSelectedDistricts] = React.useState(arrAdrress[2] || "");
-    const [selectedProvinces, setSelectedProvinces] = React.useState(arrAdrress[1] || "");
+    const [selectedWards,setSelectedWards] = React.useState("");
+    const [selectedDistricts,setSelectedDistricts] = React.useState( "");
+    const [selectedProvinces, setSelectedProvinces] = React.useState("");
 
+    const [receiverNameError, setReceiverNameError] = React.useState(false);
+    const [phoneError, setPhoneError] = React.useState(false);
+
+    const handleReceiverName = () => {
+        if (!receiverName) {
+            setReceiverNameError(true);
+            return;
+        }
+    
+        setReceiverNameError(false);
+      };
+
+    const handlePhone = () => {
+        if (!isPhone(phone)) {
+            setPhoneError(true);
+            return;
+        }
+        setPhoneError(false);
+    };
 
     console.log("selectProvinces",selectProvinces)
     console.log("selectDistricts",selectDistricts)
@@ -37,11 +59,11 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
             selectProvinces !== null &&
             selectDistricts !== null &&
             selectwards !== null &&
-            receiverName.trim() !== "" &&
-            phone.trim() !== "" &&
+            !receiverNameError &&
+            !phoneError &&
             address.trim() !== ""
         );
-    }, [selectProvinces, selectDistricts, selectwards, receiverName, phone, address]);
+    }, [selectProvinces, selectDistricts, selectwards, receiverNameError, phoneError, address]);
 
     React.useEffect(() => {
         const checked = checkedInputSuccess();
@@ -67,8 +89,7 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
         const sortedProvinces = modifiedProvinces.slice().sort((a:any, b:any) => a.province_name.localeCompare(b.province_name));
         
         
-
-        setProvinces(sortedProvinces);
+        return sortedProvinces
 
     } catch (error) {
         console.error('Error fetching provinces:', error);
@@ -77,9 +98,12 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
 
     const fetchDistrict = async (id: any) => {
         try {
+            console.log("ssss",id)
             const response = await fetch('https://vapi.vnappmob.com/api/province/district/' + id.province_id);
             const data = await response.json();
+            console.log("response",response)
             setDistricts(data.results);
+            return data.results
         } catch (error) {
         console.error('Error fetching provinces:', error);
     }
@@ -126,8 +150,40 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
     };
 
     React.useEffect(() => {
-        fetchProvinces();
-      }, []);
+        const fetchData = async () => {
+            try {
+                const arrAdrress = item.address.split(', ')
+                const res_provinces = await fetchProvinces();
+                setProvinces(res_provinces);
+                console.log("Provinces", res_provinces)
+                console.log("arrAdrress[2]", arrAdrress[2])
+                const provincesFilter = res_provinces.filter((item: any) => {
+                    return item.province_name == arrAdrress[2];
+                });
+                setSelectProvinces(provincesFilter[0])
+                const res_districts = await fetchDistrict(provincesFilter[0]);
+                console.log("res_districts", districts)
+                console.log("arrAdrress[1]", arrAdrress[1])
+                const districtsFilter = res_districts.filter((item: any) => {
+                    return item.district_name == arrAdrress[1];
+                });
+
+                setSelectDistricts(districtsFilter[0])
+
+                const res_ward = await fetchDistrict(districtsFilter[0]);
+                const wardFilter = res_ward.filter((item: any) => {
+                    return item.district_name == arrAdrress[0];
+                });
+                setSelectDistricts(wardFilter[0])
+                console.log("districtsFilter",districtsFilter)
+                console.log("provincesFilter", provincesFilter);
+            } catch (error) {
+                console.error("Error fetching provinces:", error);
+            }
+        };
+    
+        fetchData();
+      }, [selectedProvinces]);
 
     function getCookieValue(cookieName: string) {
         const name = cookieName + "=";
@@ -165,7 +221,7 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
                 addressSuccess += `, ${selectProvinces.province_name.trim()}`;
             }
     
-            const res = await axios.post(
+            const res = await axios.put(
                 `http://localhost:8080/api/v1/address`,
                 {
                     receiverName: receiverName,
@@ -199,7 +255,7 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
             handleClose()
             return;
         }
-      }
+    }
 
     React.useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -253,6 +309,8 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
                             onChange={(event) => setReceiverName(event.target.value)}
                             label="Họ Và Tên"
                             fullWidth
+                            onBlur={handleReceiverName}
+                            error={receiverNameError}
                         />
                     </Grid>
                     <Grid item xs={6}>
@@ -264,6 +322,8 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
                             onChange={(event) => setPhone(event.target.value)}
                             label="Số Điện Thoại"
                             fullWidth
+                            onBlur={handlePhone}
+                            error={phoneError}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -271,7 +331,7 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
-                            value={selectedProvinces}
+                            value={selectProvinces}
                             onChange={handleChange}
                             MenuProps={{
                                 PaperProps: {
@@ -297,7 +357,7 @@ const FormEditAddress:React.FC<ListCartProps>  =({ open , handleClose, item }) =
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
-                                    value={selectedDistricts}
+                                    value={selectDistricts}
                                     onChange={handleChangeDistricts}
                                     MenuProps={{
                                         PaperProps: {

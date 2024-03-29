@@ -19,6 +19,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import dayjs from 'dayjs'
 
+
 const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -30,16 +31,18 @@ const style = {
     boxShadow: 24,
     p: 4,
   };
-export default function AddFormPromotion({eventClose}: any) {
+
+
+export default function EditForm({ eventClose, promotion} : any) {
     const [formValid, setFormValid] = React.useState('');
-    const [data, setData] = React.useState<any[]>([]);
+    const [data, setData] = React.useState<any[]>(promotion.productRes ||[]);
     const [openSelection, setOpenSelection] = React.useState(false);
     const handleOpenSelection = () => setOpenSelection(true);
     const handleCloseSelection = () => setOpenSelection(false);
-    const [discountType, setDiscountType] = React.useState("PERCENTAGE");
-    const [discount, setDiscount] = React.useState(0)
-    const [fromDate, setFromDate] = React.useState(dayjs(new Date())); 
-    const [toDate, setToDate] = React.useState(dayjs(new Date()));
+    const [discountType, setDiscountType] = React.useState(promotion.discountType);
+    const [discount, setDiscount] = React.useState(promotion.discountType === "PERCENTAGE" ? promotion.value * 100 : promotion.value || 0);
+    const [fromDate, setFromDate] = React.useState(dayjs(promotion.fromTime)); 
+    const [toDate, setToDate] = React.useState(dayjs(promotion.toTime));
 
     const handleFromDateChange = (newDate: any) => {
         const fromDateDayjs = dayjs(newDate);
@@ -53,12 +56,10 @@ export default function AddFormPromotion({eventClose}: any) {
         const toDateDayjs = dayjs(newDate);
         setToDate(toDateDayjs);
     }
-
     const handleChangeDiscountType = (event: any) => {
         setDiscountType(event.target.value);
       };
 
-      
     function getCookieValue(cookieName: string) {
         const name = cookieName + "=";
         const decodedCookie = decodeURIComponent(document.cookie);
@@ -84,12 +85,12 @@ export default function AddFormPromotion({eventClose}: any) {
             const formattedFromTime = dayjs(dataForm.get('formTime')).toISOString();
             const formattedToTime = dayjs(dataForm.get('toTime')).toISOString();
             const arrayOfIds = data.map(item => item.id);
-            const res = await axios.post(`http://localhost:8080/api/v1/promotion`,
+            const res = await axios.put(`http://localhost:8080/api/v1/promotion`,
             {
                 fromTime: formattedFromTime,
                 toTime: formattedToTime,
                 discountType: dataForm.get('discountType'),
-                value: dataForm.get('discountType') === "PERCENTAGE" ? dataForm.get('value') / 100 : dataForm.get('value'),
+                value: dataForm.get('value'),
                 productIds: arrayOfIds,
             },
             {
@@ -157,23 +158,26 @@ export default function AddFormPromotion({eventClose}: any) {
         setDiscount(value)
       };
 
-    console.log("data", data)
-    return (
+
+
+
+
+  return (
     <>
-    <Modal
-        open={openSelection}
-        onClose={handleCloseSelection}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-      <Box sx={style}>
-        <FormSelectProduct eventClose={handleCloseSelection} setData={setData}/>
-      </Box>
-    </Modal>
+        <Modal
+            open={openSelection}
+            onClose={handleCloseSelection}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+        <Box sx={style}>
+            <FormSelectProduct eventClose={handleCloseSelection} setData={setData}/>
+        </Box>
+        </Modal>
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Box>
                 <Typography variant='h5' align='center'>
-                    Tạo Chương Trình Ưu Đãi
+                    Cập Nhập Chương Trình Ưu Đãi
                 </Typography>
                 <IconButton 
                     style={{ position: "absolute", top: "0", right: "0"}}
@@ -188,7 +192,7 @@ export default function AddFormPromotion({eventClose}: any) {
                     <Stack direction={'row'} spacing={2} justifyContent={"space-between"}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker label="Từ Ngày" name='formTime' value={fromDate} 
-                                onChange={handleFromDateChange}/>    
+                                onChange={handleFromDateChange} />    
                         </LocalizationProvider>
                         <Typography variant='h4' component={'div'}>
                             -
@@ -201,18 +205,6 @@ export default function AddFormPromotion({eventClose}: any) {
                     </Stack>
                     
                 </Grid>
-                {/* <Grid item xs={12}>
-                    <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Ưu Đãi Dành Cho</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            label="target"
-                        >
-                            <MenuItem value={"PRODUCT"}>Sản Phẩm</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Grid> */}
                 <Grid item xs={12}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Giảm Theo</InputLabel>
@@ -289,7 +281,7 @@ export default function AddFormPromotion({eventClose}: any) {
                     </Typography>
                 </Grid>
             </Grid>
-            </Box>
+        </Box>
     </>
   )
 }
